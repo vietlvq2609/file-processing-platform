@@ -1,0 +1,65 @@
+# Dependencies
+node_modules/
+yarn.lock
+pnpm-lock.yaml
+package-lock.json
+
+# Build outputs
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-workspace
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime
+.next/
+.cache/
+tmp/
+temp/
+
+# Docker
+.dockerignore
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Database
+*.sqlite
+*.sqlite3
+
+# File uploads (local storage)
+uploads/
+storage/
+
+# Docker Compose overrides (local dev only)
+docker-compose.override.yml
+
+# Session state (Copilot)
+.copilot/
