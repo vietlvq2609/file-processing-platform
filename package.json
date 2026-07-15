@@ -1,0 +1,16 @@
+{
+  "name": "file-processing-platform",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @fpp/api dev",
+    "build": "pnpm --filter @fpp/db build && pnpm --filter @fpp/api build",
+    "start": "pnpm --filter @fpp/api start",
+    "db:generate": "pnpm --filter @fpp/db generate",
+    "db:migrate": "pnpm --filter @fpp/db migrate"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  }
+}
