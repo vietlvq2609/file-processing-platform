@@ -1,0 +1,134 @@
+import { createHash } from 'node:crypto';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import type { UserRepository } from '../repositories/UserRepository.js';
+import { unauthorized, conflict, notFound } from '../utils/errors.js';
+
+const ACCESS_SECRET =
+  process.env.JWT_ACCESS_SECRET ?? 'dev-access-secret-change-in-production';
+const REFRESH_SECRET =
+  process.env.JWT_REFRESH_SECRET ?? 'dev-refresh-secret-change-in-production';
+
+/** Access token lifetime: 15 minutes. */
+const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
+/** Refresh token lifetime: 7 days. */
+const REFRESH_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60;
+
+const BCRYPT_ROUNDS = 12;
+
+/** Public-safe user shape — password and refresh token hash are never included. */
+export interface PublicUser {
+  id: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+function toPublicUser(user: {
+  id: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+}): PublicUser {
+  return { id: user.id, email: user.email, createdAt: user.createdAt, updatedAt: user.updatedAt };
+}
+
+/** SHA-256 hash of a token for storage. Faster than bcrypt and sufficient for random JWT strings. */
+function hashToken(token: string): string {
+  return createHash('sha256').update(token).digest('hex');
+}
+
+export class AuthService {
+  constructor(private readonly repo: UserRepository) {}
+
+  private signAccessToken(userId: string): string {
+    return jwt.sign({ sub: userId }, ACCESS_SECRET, { expiresIn: ACCESS_TOKEN_TTL_SECONDS });
+  }
+
+  private signRefreshToken(userId: string): string {
+    return jwt.sign({ sub: userId }, REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_TTL_SECONDS });
+  }
+
+  // ─── Public methods ────────────────────────────────────────────────────────
+
+  async register(
+    email: string,
+    password: string
+  ): Promise<{ user: PublicUser; accessToken: string; refreshToken: string }> {
+    const existing = await this.repo.findByEmail(email);
+    if (existing) {
+      throw conflict('EMAIL_TAKEN', 'An account with this email address already exists');
+    }
+
+    const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+    const user = await this.repo.create({ email, passwordHash });
+
+    const accessToken = this.signAccessToken(user.id);
+    const refreshToken = this.signRefreshToken(user.id);
+    await this.repo.setRefreshTokenHash(user.id, hashToken(refreshToken));
+
+    return { user: toPublicUser(user), accessToken, refreshToken };
+  }
+
+  async login(
+    email: string,
+    password: string
+  ): Promise<{ user: PublicUser; accessToken: string; refreshToken: string }> {
+    const user = await this.repo.findByEmail(email);
+    if (!user) {
+      // Use the same message for missing user and wrong password to prevent user enumeration.
+      throw unauthorized('INVALID_CREDENTIALS', 'Invalid email or password');
+    }
+
+    const valid = await bcrypt.compare(password, user.passwordHash);
+    if (!valid) {
+      throw unauthorized('INVALID_CREDENTIALS', 'Invalid email or password');
+    }
+
+    const accessToken = this.signAccessToken(user.id);
+    const refreshToken = this.signRefreshToken(user.id);
+    // Replacing the stored hash invalidates any previous session (single active session per user).
+    await this.repo.setRefreshTokenHash(user.id, hashToken(refreshToken));
+
+    return { user: toPublicUser(user), accessToken, refreshToken };
+  }
+
+  async refresh(token: string): Promise<{ accessToken: string }> {
+    let payload: jwt.JwtPayload;
+    try {
+      payload = jwt.verify(token, REFRESH_SECRET) as jwt.JwtPayload;
+    } catch {
+      throw unauthorized('INVALID_REFRESH_TOKEN', 'Refresh token is invalid or expired');
+    }
+
+    const userId = payload.sub;
+    if (!userId) {
+      throw unauthorized('INVALID_REFRESH_TOKEN', 'Refresh token payload is malformed');
+    }
+
+    const user = await this.repo.findById(userId);
+    if (!user || !user.refreshTokenHash) {
+      throw unauthorized('INVALID_REFRESH_TOKEN', 'Session not found — please log in again');
+    }
+
+    if (user.refreshTokenHash !== hashToken(token)) {
+      // Token reuse detected (possible token theft). Invalidate the session immediately.
+      await this.repo.setRefreshTokenHash(userId, null);
+      throw unauthorized('INVALID_REFRESH_TOKEN', 'Refresh token has already been used');
+    }
+
+    return { accessToken: this.signAccessToken(userId) };
+  }
+
+  async logout(userId: string): Promise<void> {
+    await this.repo.setRefreshTokenHash(userId, null);
+  }
+
+  async me(userId: string): Promise<PublicUser> {
+    const user = await this.repo.findById(userId);
+    if (!user) {
+      throw notFound('USER_NOT_FOUND', 'User not found');
+    }
+    return toPublicUser(user);
+  }
+}

@@ -1,10 +1,14 @@
 import Fastify from 'fastify';
 import multipart from '@fastify/multipart';
 import cors from '@fastify/cors';
+import cookie from '@fastify/cookie';
 import { createDb } from '@fpp/db';
 import { FileRepository } from './repositories/FileRepository.js';
 import { FileService } from './services/FileService.js';
+import { UserRepository } from './repositories/UserRepository.js';
+import { AuthService } from './services/AuthService.js';
 import { fileRoutes } from './routes/files/index.js';
+import { authRoutes } from './routes/auth/index.js';
 import { registerErrorHandler } from './middleware/errorHandler.js';
 import './types/index.js';
 
@@ -25,6 +29,9 @@ export function buildApp() {
     credentials: true,
   });
 
+  // @fastify/cookie must be registered before any route that reads/sets cookies.
+  app.register(cookie);
+
   app.register(multipart, {
     limits: {
       fileSize: 50 * 1024 * 1024, // 50 MB per file
@@ -35,10 +42,15 @@ export function buildApp() {
   // ── Dependency composition ─────────────────────────────────────────────────
   // The db client is created once and shared across all repositories.
   const db = createDb(DATABASE_URL);
+
+  const userRepository = new UserRepository(db);
+  const authService = new AuthService(userRepository);
+
   const fileRepository = new FileRepository(db);
   const fileService = new FileService(fileRepository);
 
   // ── Routes ─────────────────────────────────────────────────────────────────
+  app.register(authRoutes(authService), { prefix: '/api/auth' });
   app.register(fileRoutes(fileService), { prefix: '/api/files' });
 
   // ── Error handler ──────────────────────────────────────────────────────────

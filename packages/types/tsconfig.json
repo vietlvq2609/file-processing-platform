@@ -5,6 +5,7 @@
     "moduleResolution": "NodeNext",
     "strict": true,
     "noUncheckedIndexedAccess": true,
+    "composite": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
