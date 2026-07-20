@@ -15,10 +15,7 @@ const DATABASE_URL =
 export function buildApp() {
   const app = Fastify({
     logger: {
-      transport:
-        process.env.NODE_ENV !== 'production'
-          ? { target: 'pino-pretty' }
-          : undefined,
+      transport: process.env.NODE_ENV !== 'production' ? { target: 'pino-pretty' } : undefined,
     },
   });
 
@@ -31,7 +28,7 @@ export function buildApp() {
   app.register(multipart, {
     limits: {
       fileSize: 50 * 1024 * 1024, // 50 MB per file
-      files: 1,                   // one file per request
+      files: 1, // one file per request
     },
   });
 

@@ -18,7 +18,7 @@ export class FileRepository {
 
   async findAllByUser(
     userId: string,
-    opts: ListOptions,
+    opts: ListOptions
   ): Promise<{ data: DbFile[]; total: number }> {
     const offset = (opts.page - 1) * opts.limit;
 

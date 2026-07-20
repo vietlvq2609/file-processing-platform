@@ -82,7 +82,7 @@ export class FileService {
 
   async getDownloadStream(
     userId: string,
-    fileId: string,
+    fileId: string
   ): Promise<{ stream: ReadStream; file: DbFile }> {
     const file = await this.findById(userId, fileId);
     const stream = createReadStream(file.storagePath);

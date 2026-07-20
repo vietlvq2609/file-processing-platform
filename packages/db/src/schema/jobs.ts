@@ -2,12 +2,7 @@ import { pgTable, uuid, varchar, text, integer, timestamp, pgEnum } from 'drizzl
 import { files } from './files.js';
 import { users } from './users.js';
 
-export const jobStatusEnum = pgEnum('job_status', [
-  'pending',
-  'active',
-  'completed',
-  'failed',
-]);
+export const jobStatusEnum = pgEnum('job_status', ['pending', 'active', 'completed', 'failed']);
 
 export const jobs = pgTable('jobs', {
   id: uuid('id').primaryKey().defaultRandom(),

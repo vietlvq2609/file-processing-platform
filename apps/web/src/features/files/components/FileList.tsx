@@ -1,18 +1,18 @@
-import { useState } from 'react'
-import { useFiles } from '../hooks/useFiles'
-import { useDebounce } from '../../../hooks/useDebounce'
-import FileCard from './FileCard'
+import { useState } from 'react';
+import { useFiles } from '../hooks/useFiles';
+import { useDebounce } from '../../../hooks/useDebounce';
+import FileCard from './FileCard';
 
 export default function FileList() {
-  const [search, setSearch] = useState('')
-  const [page, setPage] = useState(1)
-  const debouncedSearch = useDebounce(search, 300)
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const debouncedSearch = useDebounce(search, 300);
 
   const { data, isLoading, isError } = useFiles({
     page,
     limit: 20,
     search: debouncedSearch || undefined,
-  })
+  });
 
   return (
     <div>
@@ -20,7 +20,10 @@ export default function FileList() {
         type="search"
         placeholder="Search files…"
         value={search}
-        onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setPage(1);
+        }}
         style={{
           display: 'block',
           width: '100%',
@@ -58,5 +61,5 @@ export default function FileList() {
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -2,15 +2,28 @@
   "name": "file-processing-platform",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "pnpm --filter @fpp/api dev",
     "build": "pnpm --filter @fpp/db build && pnpm --filter @fpp/api build",
     "start": "pnpm --filter @fpp/api start",
     "db:generate": "pnpm --filter @fpp/db generate",
-    "db:migrate": "pnpm --filter @fpp/db migrate"
+    "db:migrate": "pnpm --filter @fpp/db migrate",
+    "db:seed": "docker exec -i fpp-postgres psql -U postgres -d file-processing-platform-db < infra/postgres/seeds/01_test_user.sql",
+    "lint": "eslint \"apps/**/src/**/*.{ts,tsx}\" \"packages/**/src/**/*.ts\"",
+    "lint:fix": "eslint \"apps/**/src/**/*.{ts,tsx}\" \"packages/**/src/**/*.ts\" --fix",
+    "format": "prettier --write \"apps/**/src/**/*.{ts,tsx}\" \"packages/**/src/**/*.ts\"",
+    "format:check": "prettier --check \"apps/**/src/**/*.{ts,tsx}\" \"packages/**/src/**/*.ts\""
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@types/node": "^20.0.0",
-    "typescript": "^5.4.0"
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "prettier": "^3.9.5",
+    "typescript": "^5.4.0",
+    "typescript-eslint": "^8.64.0"
   }
 }

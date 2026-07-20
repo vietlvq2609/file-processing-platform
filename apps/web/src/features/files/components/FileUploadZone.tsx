@@ -1,31 +1,34 @@
-import { useRef, useState, type DragEvent, type ChangeEvent } from 'react'
-import { useUploadFile } from '../hooks/useUploadFile'
+import { useRef, useState, type DragEvent, type ChangeEvent } from 'react';
+import { useUploadFile } from '../hooks/useUploadFile';
 
 export default function FileUploadZone() {
-  const { mutate: upload, isPending } = useUploadFile()
-  const [isDragging, setIsDragging] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const { mutate: upload, isPending } = useUploadFile();
+  const [isDragging, setIsDragging] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   function handleFiles(files: FileList | null) {
-    if (!files) return
-    Array.from(files).forEach((file) => upload(file))
+    if (!files) return;
+    Array.from(files).forEach((file) => upload(file));
   }
 
   function onDrop(e: DragEvent<HTMLDivElement>) {
-    e.preventDefault()
-    setIsDragging(false)
-    handleFiles(e.dataTransfer.files)
+    e.preventDefault();
+    setIsDragging(false);
+    handleFiles(e.dataTransfer.files);
   }
 
   function onChange(e: ChangeEvent<HTMLInputElement>) {
-    handleFiles(e.target.files)
-    e.target.value = ''
+    handleFiles(e.target.files);
+    e.target.value = '';
   }
 
   return (
     <div
       onClick={() => !isPending && inputRef.current?.click()}
-      onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setIsDragging(true);
+      }}
       onDragLeave={() => setIsDragging(false)}
       onDrop={onDrop}
       style={{
@@ -50,5 +53,5 @@ export default function FileUploadZone() {
         </p>
       )}
     </div>
-  )
+  );
 }
