@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import multipart from '@fastify/multipart';
+import cors from '@fastify/cors';
 import { createDb } from '@fpp/db';
 import { FileRepository } from './repositories/FileRepository.js';
 import { FileService } from './services/FileService.js';
@@ -22,6 +23,11 @@ export function buildApp() {
   });
 
   // ── Plugins ────────────────────────────────────────────────────────────────
+  app.register(cors, {
+    origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
+    credentials: true,
+  });
+
   app.register(multipart, {
     limits: {
       fileSize: 50 * 1024 * 1024, // 50 MB per file
@@ -36,7 +42,7 @@ export function buildApp() {
   const fileService = new FileService(fileRepository);
 
   // ── Routes ─────────────────────────────────────────────────────────────────
-  app.register(fileRoutes(fileService), { prefix: '/files' });
+  app.register(fileRoutes(fileService), { prefix: '/api/files' });
 
   // ── Error handler ──────────────────────────────────────────────────────────
   registerErrorHandler(app);

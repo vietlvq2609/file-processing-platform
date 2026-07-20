@@ -1,4 +1,4 @@
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyError } from 'fastify';
 import { AppError } from '../utils/errors.js';
 
 export function registerErrorHandler(app: FastifyInstance): void {
@@ -11,9 +11,10 @@ export function registerErrorHandler(app: FastifyInstance): void {
     }
 
     // Fastify validation error (schema mismatch)
-    if (error.validation) {
+    const fastifyError = error as FastifyError;
+    if (fastifyError.validation) {
       return reply.status(422).send({
-        error: { code: 'VALIDATION_ERROR', message: error.message },
+        error: { code: 'VALIDATION_ERROR', message: fastifyError.message },
       });
     }
 
