@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter @fpp/api dev",
-    "build": "pnpm --filter @fpp/db build && pnpm --filter @fpp/api build",
+    "build": "pnpm --filter @fpp/db build && pnpm --filter @fpp/types build && pnpm --filter @fpp/api build",
     "start": "pnpm --filter @fpp/api start",
     "db:generate": "pnpm --filter @fpp/db generate",
     "db:migrate": "pnpm --filter @fpp/db migrate",
