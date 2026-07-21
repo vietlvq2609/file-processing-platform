@@ -7,6 +7,7 @@
     "dev": "pnpm --filter @fpp/api dev",
     "build": "pnpm --filter @fpp/db build && pnpm --filter @fpp/types build && pnpm --filter @fpp/api build",
     "start": "pnpm --filter @fpp/api start",
+    "start:web" : "pnpm --filter @fpp/web dev",
     "db:generate": "pnpm --filter @fpp/db generate",
     "db:migrate": "pnpm --filter @fpp/db migrate",
     "db:seed": "docker exec -i fpp-postgres psql -U postgres -d file-processing-platform-db < infra/postgres/seeds/01_test_user.sql",
