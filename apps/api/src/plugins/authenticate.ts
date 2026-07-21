@@ -1,9 +1,7 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import jwt from 'jsonwebtoken';
 import { AppError, unauthorized } from '../utils/errors.js';
-
-const ACCESS_SECRET =
-  process.env.JWT_ACCESS_SECRET ?? 'dev-access-secret-change-in-production';
+import { config } from '../config.js';
 
 /**
  * Fastify preHandler that verifies the Bearer access token and populates request.userId.
@@ -23,7 +21,7 @@ export async function authenticate(
 
   let payload: jwt.JwtPayload;
   try {
-    payload = jwt.verify(token, ACCESS_SECRET) as jwt.JwtPayload;
+    payload = jwt.verify(token, config.jwt.accessSecret) as jwt.JwtPayload;
   } catch (err) {
     // Re-throw AppErrors (e.g. if somehow they reach this point)
     if (err instanceof AppError) throw err;

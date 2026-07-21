@@ -2,22 +2,19 @@ import type { FastifyInstance } from 'fastify';
 import type { AuthService } from '../../services/AuthService.js';
 import { authenticate } from '../../plugins/authenticate.js';
 import { registerSchema, loginSchema } from './schemas.js';
+import { config } from '../../config.js';
 
 const REFRESH_COOKIE = 'refreshToken';
-/** 7 days in seconds — must match the refresh token JWT TTL in AuthService. */
-const REFRESH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60;
 
 export function authRoutes(service: AuthService) {
   return async function routes(app: FastifyInstance) {
-    const isProduction = process.env.NODE_ENV === 'production';
-
     // The cookie path is scoped to /api/auth so it is only sent on auth endpoints.
     const refreshCookieOpts = {
       httpOnly: true,
-      secure: isProduction,
+      secure: config.isProduction,
       sameSite: 'strict' as const,
       path: '/api/auth',
-      maxAge: REFRESH_COOKIE_MAX_AGE,
+      maxAge: config.jwt.refreshTtlSeconds,
     };
 
     // ─── POST /auth/register ────────────────────────────────────────────────

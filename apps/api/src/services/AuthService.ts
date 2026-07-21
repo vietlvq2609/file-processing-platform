@@ -3,18 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import type { UserRepository } from '../repositories/UserRepository.js';
 import { unauthorized, conflict, notFound } from '../utils/errors.js';
-
-const ACCESS_SECRET =
-  process.env.JWT_ACCESS_SECRET ?? 'dev-access-secret-change-in-production';
-const REFRESH_SECRET =
-  process.env.JWT_REFRESH_SECRET ?? 'dev-refresh-secret-change-in-production';
-
-/** Access token lifetime: 15 minutes. */
-const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
-/** Refresh token lifetime: 7 days. */
-const REFRESH_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60;
-
-const BCRYPT_ROUNDS = 12;
+import { config } from '../config.js';
 
 /** Public-safe user shape — password and refresh token hash are never included. */
 export interface PublicUser {
@@ -42,11 +31,11 @@ export class AuthService {
   constructor(private readonly repo: UserRepository) {}
 
   private signAccessToken(userId: string): string {
-    return jwt.sign({ sub: userId }, ACCESS_SECRET, { expiresIn: ACCESS_TOKEN_TTL_SECONDS });
+    return jwt.sign({ sub: userId }, config.jwt.accessSecret, { expiresIn: config.jwt.accessTtlSeconds });
   }
 
   private signRefreshToken(userId: string): string {
-    return jwt.sign({ sub: userId }, REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_TTL_SECONDS });
+    return jwt.sign({ sub: userId }, config.jwt.refreshSecret, { expiresIn: config.jwt.refreshTtlSeconds });
   }
 
   // ─── Public methods ────────────────────────────────────────────────────────
@@ -60,7 +49,7 @@ export class AuthService {
       throw conflict('EMAIL_TAKEN', 'An account with this email address already exists');
     }
 
-    const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+    const passwordHash = await bcrypt.hash(password, config.auth.bcryptRounds);
     const user = await this.repo.create({ email, passwordHash });
 
     const accessToken = this.signAccessToken(user.id);
@@ -96,7 +85,7 @@ export class AuthService {
   async refresh(token: string): Promise<{ accessToken: string }> {
     let payload: jwt.JwtPayload;
     try {
-      payload = jwt.verify(token, REFRESH_SECRET) as jwt.JwtPayload;
+      payload = jwt.verify(token, config.jwt.refreshSecret) as jwt.JwtPayload;
     } catch {
       throw unauthorized('INVALID_REFRESH_TOKEN', 'Refresh token is invalid or expired');
     }

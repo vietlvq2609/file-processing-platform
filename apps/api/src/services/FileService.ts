@@ -8,8 +8,7 @@ import type { MultipartFile } from '@fastify/multipart';
 import type { File as DbFile } from '@fpp/db';
 import type { FileRepository, ListOptions } from '../repositories/FileRepository.js';
 import { notFound, conflict } from '../utils/errors.js';
-
-const STORAGE_PATH = process.env.STORAGE_PATH ?? './uploads';
+import { config } from '../config.js';
 
 export interface PaginatedFiles {
   data: DbFile[];
@@ -25,7 +24,7 @@ export class FileService {
   constructor(private readonly repo: FileRepository) {}
 
   async upload(userId: string, multipart: MultipartFile): Promise<DbFile> {
-    const userDir = join(STORAGE_PATH, userId);
+    const userDir = join(config.upload.storagePath, userId);
     await mkdir(userDir, { recursive: true });
 
     const ext = extname(multipart.filename);
