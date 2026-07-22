@@ -6,6 +6,5 @@ export function useFile(id: string) {
   return useQuery({
     queryKey: queryKeys.files.detail(id),
     queryFn: () => getFile(id),
-    enabled: Boolean(id),
   });
 }

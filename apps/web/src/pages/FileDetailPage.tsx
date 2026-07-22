@@ -1,11 +1,12 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useFile } from '../features/files/hooks/useFile';
 import FileDetail from '../features/files/components/FileDetail';
+import { useRequiredParam } from '../hooks/useRequiredParam';
 
 export default function FileDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const id = useRequiredParam('id');
   const navigate = useNavigate();
-  const { data: file, isLoading, isError } = useFile(id ?? '');
+  const { data: file, isLoading, isError } = useFile(id);
 
   if (isLoading)
     return (
