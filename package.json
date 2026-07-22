@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm --filter @fpp/api dev",
+    "dev": "concurrently -n api,web -c blue,green \"pnpm --filter @fpp/api dev\" \"pnpm --filter @fpp/web dev\"",
+    "dev:api": "pnpm --filter @fpp/api dev",
+    "dev:web": "pnpm --filter @fpp/web dev",
     "build": "pnpm --filter @fpp/db build && pnpm --filter @fpp/types build && pnpm --filter @fpp/api build",
     "start": "pnpm --filter @fpp/api start",
-    "start:web" : "pnpm --filter @fpp/web dev",
     "db:generate": "pnpm --filter @fpp/db generate",
     "db:migrate": "pnpm --filter @fpp/db migrate",
     "db:seed": "docker exec -i fpp-postgres psql -U postgres -d file-processing-platform-db < infra/postgres/seeds/01_test_user.sql",
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "concurrently": "^10.0.3",
     "@types/node": "^20.0.0",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
