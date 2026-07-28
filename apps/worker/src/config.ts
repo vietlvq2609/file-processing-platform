@@ -1,5 +1,10 @@
-import 'dotenv/config';
+import { config as loadEnv } from 'dotenv';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 import { z } from 'zod';
+
+// Resolve the monorepo root .env regardless of where the process is started.
+loadEnv({ path: resolve(dirname(fileURLToPath(import.meta.url)), '../../../.env') });
 
 const EnvSchema = z.object({
   NODE_ENV: z.enum(['local', 'development', 'staging', 'production']).default('local'),

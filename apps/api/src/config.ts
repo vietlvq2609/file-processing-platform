@@ -1,5 +1,13 @@
-import 'dotenv/config';
+import { config as loadEnv } from 'dotenv';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 import { z } from 'zod';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// Load shared infra vars from the monorepo root first (DATABASE_URL, REDIS_URL, etc.),
+// then overlay API-specific vars from apps/api/.env — app file takes precedence.
+loadEnv({ path: resolve(__dirname, '../../../.env') });
+loadEnv({ path: resolve(__dirname, '../../.env'), override: true });
 
 const EnvSchema = z.object({
   // ── Runtime ────────────────────────────────────────────────────────────────
