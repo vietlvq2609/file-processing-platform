@@ -1,4 +1,18 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: fpp-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
   postgres:
     image: postgres:16-alpine
     container_name: fpp-postgres
@@ -27,3 +41,8 @@ volumes:
 networks:
   app_network:
     driver: bridge
+
+# ── NOTE ──────────────────────────────────────────────────────────────────────
+# API and Worker services are intentionally omitted from the dev compose file.
+# Run them locally with:  pnpm dev:api / pnpm dev:worker
+# See docker-compose.prod.yml for the full production service definitions.

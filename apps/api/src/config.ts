@@ -23,6 +23,9 @@ const EnvSchema = z.object({
   // ── Auth ──────────────────────────────────────────────────────────────────
   BCRYPT_ROUNDS: z.coerce.number().int().min(10).max(14).default(12),
 
+  // ── Redis ──────────────────────────────────────────────────────────────────
+  REDIS_URL: z.string().default('redis://localhost:6379'),
+
   // ── File storage ──────────────────────────────────────────────────────────
   STORAGE_PATH: z.string().min(1).default('./uploads'),
   MAX_FILE_SIZE_BYTES: z.coerce.number().int().positive().default(50 * 1024 * 1024), // 50 MB
@@ -68,5 +71,8 @@ export const config = {
   upload: {
     storagePath: env.STORAGE_PATH,
     maxFileSizeBytes: env.MAX_FILE_SIZE_BYTES,
+  },
+  redis: {
+    url: env.REDIS_URL,
   },
 } as const;
