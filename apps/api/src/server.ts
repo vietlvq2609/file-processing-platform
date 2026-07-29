@@ -31,6 +31,7 @@ export function buildApp() {
   app.register(cors, {
     origin: config.cors.origin,
     credentials: true,
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 
   // @fastify/cookie must be registered before any route that reads/sets cookies.
