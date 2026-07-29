@@ -5,6 +5,7 @@ import cookie from '@fastify/cookie';
 import websocket from '@fastify/websocket';
 import { createDb } from '@fpp/db';
 import { config } from './config.js';
+import { minioClient } from './storage.js';
 import { FileRepository } from './repositories/FileRepository.js';
 import { FileService } from './services/FileService.js';
 import { UserRepository } from './repositories/UserRepository.js';
@@ -51,7 +52,7 @@ export function buildApp() {
   const authService = new AuthService(userRepository);
 
   const fileRepository = new FileRepository(db);
-  const fileService = new FileService(fileRepository);
+  const fileService = new FileService(fileRepository, minioClient);
 
   const jobRepository = new JobRepository(db);
   const jobService = new JobService(jobRepository, fileRepository);

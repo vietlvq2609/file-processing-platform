@@ -1,9 +1,7 @@
-import { createWriteStream, createReadStream } from 'node:fs';
-import { mkdir, stat } from 'node:fs/promises';
-import { join, extname } from 'node:path';
+import { extname } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { pipeline } from 'node:stream/promises';
-import type { ReadStream } from 'node:fs';
+import type { Readable } from 'node:stream';
+import type { Client as MinioClient } from 'minio';
 import type { MultipartFile } from '@fastify/multipart';
 import type { File as DbFile } from '@fpp/db';
 import type { FileRepository, ListOptions } from '../repositories/FileRepository.js';
@@ -21,29 +19,25 @@ export interface PaginatedFiles {
 }
 
 export class FileService {
-  constructor(private readonly repo: FileRepository) {}
+  constructor(
+    private readonly repo: FileRepository,
+    private readonly storage: MinioClient,
+  ) {}
 
   async upload(userId: string, multipart: MultipartFile): Promise<DbFile> {
-    const userDir = join(config.upload.storagePath, userId);
-    await mkdir(userDir, { recursive: true });
-
     const ext = extname(multipart.filename);
-    const storageName = `${randomUUID()}${ext}`;
-    const storagePath = join(userDir, storageName);
+    const objectKey = `${userId}/${randomUUID()}${ext}`;
 
-    // Stream directly to disk — no buffering in memory
-    await pipeline(multipart.file, createWriteStream(storagePath));
-
-    // Read actual size after the write (more reliable than stream.bytesRead)
-    const { size } = await stat(storagePath);
+    await this.storage.putObject(config.minio.bucket, objectKey, multipart.file);
+    const { size } = await this.storage.statObject(config.minio.bucket, objectKey);
 
     return this.repo.create({
       userId,
       originalName: multipart.filename,
       mimeType: multipart.mimetype,
       size,
-      storagePath,
-      status: 'ready', // No processing yet — mark ready immediately
+      storagePath: objectKey,
+      status: 'ready',
     });
   }
 
@@ -82,9 +76,9 @@ export class FileService {
   async getDownloadStream(
     userId: string,
     fileId: string
-  ): Promise<{ stream: ReadStream; file: DbFile }> {
+  ): Promise<{ stream: Readable; file: DbFile }> {
     const file = await this.findById(userId, fileId);
-    const stream = createReadStream(file.storagePath);
+    const stream = await this.storage.getObject(config.minio.bucket, file.storagePath);
     return { stream, file };
   }
 }

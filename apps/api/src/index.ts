@@ -1,5 +1,8 @@
 import { buildApp } from './server.js';
 import { config } from './config.js';
+import { ensureBucket } from './storage.js';
+
+await ensureBucket();
 
 const app = buildApp();
 

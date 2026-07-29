@@ -35,8 +35,15 @@ const EnvSchema = z.object({
   REDIS_URL: z.string().default('redis://localhost:6379'),
 
   // ── File storage ──────────────────────────────────────────────────────────
-  STORAGE_PATH: z.string().min(1).default('./uploads'),
   MAX_FILE_SIZE_BYTES: z.coerce.number().int().positive().default(50 * 1024 * 1024), // 50 MB
+
+  // ── MinIO ─────────────────────────────────────────────────────────────────
+  MINIO_ENDPOINT: z.string().default('localhost'),
+  MINIO_PORT: z.coerce.number().int().min(1).max(65535).default(9000),
+  MINIO_USE_SSL: z.string().default('false').transform((v) => v === 'true'),
+  MINIO_ACCESS_KEY: z.string().min(1).default('minioadmin'),
+  MINIO_SECRET_KEY: z.string().min(1).default('minioadmin'),
+  MINIO_BUCKET: z.string().min(1).default('uploads'),
 });
 
 function parseConfig() {
@@ -77,8 +84,15 @@ export const config = {
     bcryptRounds: env.BCRYPT_ROUNDS,
   },
   upload: {
-    storagePath: env.STORAGE_PATH,
     maxFileSizeBytes: env.MAX_FILE_SIZE_BYTES,
+  },
+  minio: {
+    endPoint: env.MINIO_ENDPOINT,
+    port: env.MINIO_PORT,
+    useSSL: env.MINIO_USE_SSL,
+    accessKey: env.MINIO_ACCESS_KEY,
+    secretKey: env.MINIO_SECRET_KEY,
+    bucket: env.MINIO_BUCKET,
   },
   redis: {
     url: env.REDIS_URL,

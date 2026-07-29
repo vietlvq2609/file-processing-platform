@@ -52,9 +52,6 @@ COPY --from=builder /app/apps/api/dist        ./apps/api/dist
 COPY --from=builder /app/packages/db/dist     ./packages/db/dist
 COPY --from=builder /app/packages/types/dist  ./packages/types/dist
 
-# Uploaded files are persisted via a Docker volume mounted here at runtime.
-RUN mkdir -p /app/apps/api/uploads
-
 WORKDIR /app/apps/api
 
 ENV NODE_ENV=production
