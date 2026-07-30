@@ -1,5 +1,7 @@
 # Copilot Instructions
 
+<!-- This file mirrors .context/copilot-instructions.md and is placed here so VS Code picks it up automatically. Keep both files in sync. -->
+
 This file provides GitHub Copilot with the context needed to give accurate, relevant assistance throughout development of the File Processing Platform.
 
 ---
