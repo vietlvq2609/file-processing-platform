@@ -1,2 +1,1 @@
-// Layout components — Navbar, Sidebar, PageWrapper (to be implemented)
-export {};
+export { default as AppLayout } from './AppLayout';

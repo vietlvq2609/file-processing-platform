@@ -59,12 +59,14 @@ Two distinct categories of state require different solutions:
 ```
 /                       → redirect to /dashboard
 /login                  → Login page (public)
-/register               → Register page (public)
-/dashboard              → File library overview (protected)
-/files/:id              → File detail + job history (protected)
-/jobs                   → All jobs list (protected)
-/jobs/:id               → Job detail + progress (protected)
+/dashboard              → File library — general file manager (protected, AppLayout)
+/files/:id              → File detail + job history (protected, AppLayout)
+/converter              → Converter pillar (protected, AppLayout)
+/compressor             → Compressor pillar (protected, AppLayout)
+/tools                  → Tools pillar (protected, AppLayout)
 ```
+
+All protected routes share a single `AppLayout` that renders the top navigation bar (Files | Converter | Compressor | Tools), user info, and sign-out. Route children are injected via React Router's `<Outlet />`.
 
 ---
 
@@ -112,11 +114,14 @@ Components are categorised as:
 ```
 src/
 ├── api/            HTTP client, axios instance, API function wrappers
-├── components/     Reusable UI primitives (Button, Modal, ProgressBar, etc.)
-├── features/       Domain feature modules (auth, files, jobs)
-│   ├── auth/
-│   ├── files/
-│   └── jobs/
+├── components/
+│   ├── layout/     AppLayout (shared nav + Outlet wrapper)
+│   └── ui/         Reusable UI primitives — FileDropZone, Button, Modal, etc.
+├── features/       Domain feature modules, one per pillar + core
+│   ├── files/      Upload, list, detail, job progress (core)
+│   ├── converter/  Converter pillar pages and components
+│   ├── compressor/ Compressor pillar pages and components
+│   └── tools/      Tools pillar pages and components
 ├── hooks/          Shared custom hooks (useWebSocket, useDebounce, etc.)
 ├── pages/          Route-level page components
 ├── stores/         Zustand stores (authStore, wsStore)
@@ -124,3 +129,7 @@ src/
 ├── types/          TypeScript interfaces and enums (DTOs, domain models)
 └── utils/          Pure helpers (formatBytes, formatDate, etc.)
 ```
+
+### Shared UI: `FileDropZone`
+
+`components/ui/FileDropZone` is a **presentational** drag-and-drop file input. It accepts an `onFiles` callback, making it reusable across all three pillars without coupling to any specific upload mutation. Feature-specific wrappers (e.g. `features/files/components/FileUploadZone`) wire in the appropriate hook.

@@ -27,6 +27,16 @@ This is not a commercial product. Business complexity is intentionally simple so
 
 The platform simulates systems like Google Drive, Dropbox, Cloudinary, and document-conversion services. Users upload files, the platform processes them asynchronously in the background, and users can track progress in real time before downloading the result.
 
+The frontend is organised around three product pillars, each served by a dedicated section of the UI:
+
+| Pillar | Purpose |
+|---|---|
+| **Converter** | Convert files between formats (e.g. image → PDF, DOCX → PDF) |
+| **Compressor** | Reduce file size for images, PDFs, and archives |
+| **Tools** | Miscellaneous file utilities |
+
+A shared **Files** section acts as the general-purpose file manager (upload, browse, download, delete).
+
 The domain is deliberately thin on business rules to keep complexity from obscuring the engineering patterns underneath.
 
 ---
