@@ -1,13 +1,14 @@
 import type { FastifyInstance } from 'fastify';
-import type { AuthService } from '../../services/AuthService.js';
-import { authenticate } from '../../plugins/authenticate.js';
-import { registerSchema, loginSchema } from './schemas.js';
+
 import { config } from '../../config.js';
+import { authenticate } from '../../plugins/authenticate.js';
+import type { AuthService } from '../../services/AuthService.js';
+import { loginSchema, registerSchema } from './schemas.js';
 
 const REFRESH_COOKIE = 'refreshToken';
 
 export function authRoutes(service: AuthService) {
-  return async function routes(app: FastifyInstance) {
+  return function routes(app: FastifyInstance) {
     // The cookie path is scoped to /api/auth so it is only sent on auth endpoints.
     const refreshCookieOpts = {
       httpOnly: true,
@@ -59,25 +60,17 @@ export function authRoutes(service: AuthService) {
 
     // ─── POST /auth/logout ───────────────────────────────────────────────────
     // Revokes the current session. Requires a valid access token.
-    app.post(
-      '/logout',
-      { preHandler: [authenticate] },
-      async (request, reply) => {
-        await service.logout(request.userId);
-        reply.clearCookie(REFRESH_COOKIE, { path: '/api/auth' });
-        return reply.status(204).send();
-      }
-    );
+    app.post('/logout', { preHandler: [authenticate] }, async (request, reply) => {
+      await service.logout(request.userId);
+      reply.clearCookie(REFRESH_COOKIE, { path: '/api/auth' });
+      return reply.status(204).send();
+    });
 
     // ─── GET /auth/me ────────────────────────────────────────────────────────
     // Returns the authenticated user's profile. Requires a valid access token.
-    app.get(
-      '/me',
-      { preHandler: [authenticate] },
-      async (request, reply) => {
-        const user = await service.me(request.userId);
-        return reply.send({ data: user });
-      }
-    );
+    app.get('/me', { preHandler: [authenticate] }, async (request, reply) => {
+      const user = await service.me(request.userId);
+      return reply.send({ data: user });
+    });
   };
 }

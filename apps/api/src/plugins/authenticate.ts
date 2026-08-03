@@ -1,17 +1,15 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import jwt from 'jsonwebtoken';
-import { AppError, unauthorized } from '../utils/errors.js';
+
 import { config } from '../config.js';
+import { AppError, unauthorized } from '../utils/errors.js';
 
 /**
  * Fastify preHandler that verifies the Bearer access token and populates request.userId.
  * Add this to any route that requires authentication:
  *   { preHandler: [authenticate] }
  */
-export async function authenticate(
-  request: FastifyRequest,
-  _reply: FastifyReply
-): Promise<void> {
+export function authenticate(request: FastifyRequest, _reply: FastifyReply): void {
   const authHeader = request.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
     throw unauthorized('MISSING_TOKEN', 'Authorization token is required');

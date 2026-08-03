@@ -1,12 +1,13 @@
-import type { FastifyInstance } from 'fastify';
 import type { WebSocket } from '@fastify/websocket';
-import jwt from 'jsonwebtoken';
-import { wsManager } from '../../ws/WsManager.js';
-import { config } from '../../config.js';
 import type { WsClientMessage } from '@fpp/types';
+import type { FastifyInstance } from 'fastify';
+import jwt from 'jsonwebtoken';
+
+import { config } from '../../config.js';
+import { wsManager } from '../../ws/WsManager.js';
 
 export function wsRoutes() {
-  return async function routes(app: FastifyInstance) {
+  return function routes(app: FastifyInstance) {
     // GET /ws?token=<accessToken>
     // The token is passed as a query param because browsers cannot set
     // Authorization headers on native WebSocket connections.

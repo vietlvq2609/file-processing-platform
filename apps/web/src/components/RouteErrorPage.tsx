@@ -1,4 +1,4 @@
-import { useRouteError, useNavigate, isRouteErrorResponse } from 'react-router-dom';
+import { isRouteErrorResponse, useNavigate, useRouteError } from 'react-router-dom';
 
 /**
  * Rendered by React Router whenever a route's render tree throws.

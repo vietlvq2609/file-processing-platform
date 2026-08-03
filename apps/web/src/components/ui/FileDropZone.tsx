@@ -1,4 +1,4 @@
-import { useRef, useState, type DragEvent, type ChangeEvent } from 'react';
+import { type ChangeEvent, type DragEvent, useRef, useState } from 'react';
 
 interface FileDropZoneProps {
   onFiles: (files: File[]) => void;

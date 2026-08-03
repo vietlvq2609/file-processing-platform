@@ -1,5 +1,6 @@
 import { Queue } from 'bullmq';
 import { Redis } from 'ioredis';
+
 import { config } from '../config.js';
 
 export const JOBS_QUEUE_NAME = 'jobs';

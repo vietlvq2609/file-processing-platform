@@ -1,5 +1,5 @@
-import { useJobWebSocket } from '../../../hooks/useJobWebSocket';
 import { getDownloadUrl } from '../../../api/files';
+import { useJobWebSocket } from '../../../hooks/useJobWebSocket';
 import type { Job } from '../../../types/domain';
 
 interface JobProgressPanelProps {

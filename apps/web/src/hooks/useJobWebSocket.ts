@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+
 import { useAuthStore } from '../stores/authStore';
 import type { JobStatus } from '../types/domain';
 
@@ -15,7 +16,7 @@ export interface JobWsState {
  */
 export function useJobWebSocket(
   jobId: string | null,
-  initial: { progress: number; status: JobStatus },
+  initial: { progress: number; status: JobStatus }
 ): JobWsState {
   const accessToken = useAuthStore((s) => s.accessToken);
   const [state, setState] = useState<JobWsState>({
@@ -88,7 +89,6 @@ export function useJobWebSocket(
       }
     };
     // Re-run when job becomes terminal to stop the connection.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId, accessToken, state.status]);
 
   return state;

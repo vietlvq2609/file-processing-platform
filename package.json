@@ -16,19 +16,33 @@
     "lint": "eslint \"apps/**/src/**/*.{ts,tsx}\" \"packages/**/src/**/*.ts\"",
     "lint:fix": "eslint \"apps/**/src/**/*.{ts,tsx}\" \"packages/**/src/**/*.ts\" --fix",
     "format": "prettier --write \"apps/**/src/**/*.{ts,tsx}\" \"packages/**/src/**/*.ts\"",
-    "format:check": "prettier --check \"apps/**/src/**/*.{ts,tsx}\" \"packages/**/src/**/*.ts\""
+    "format:check": "prettier --check \"apps/**/src/**/*.{ts,tsx}\" \"packages/**/src/**/*.ts\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "apps/**/src/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "packages/**/src/**/*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "dotenv": "^17.4.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
-    "concurrently": "^10.0.3",
     "@types/node": "^20.0.0",
+    "concurrently": "^10.0.3",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
     "prettier": "^3.9.5",
     "typescript": "^5.4.0",
     "typescript-eslint": "^8.64.0"

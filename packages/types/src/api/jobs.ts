@@ -1,6 +1,6 @@
 import type { Job } from '../domain.js';
 import type { JobStatus } from '../enums.js';
-import type { ApiResponse, ApiListResponse } from './common.js';
+import type { ApiListResponse, ApiResponse } from './common.js';
 
 // ─── POST /jobs ──────────────────────────────────────────────────────────────
 

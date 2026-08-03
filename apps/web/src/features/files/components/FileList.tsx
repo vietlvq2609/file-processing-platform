@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useFiles } from '../hooks/useFiles';
+
 import { useDebounce } from '../../../hooks/useDebounce';
+import { useFiles } from '../hooks/useFiles';
 import FileCard from './FileCard';
 
 export default function FileList() {

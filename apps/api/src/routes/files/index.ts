@@ -1,11 +1,12 @@
 import type { FastifyInstance } from 'fastify';
-import type { FileService } from '../../services/FileService.js';
+
 import { authenticate } from '../../plugins/authenticate.js';
-import { listFilesSchema, fileByIdSchema } from './schemas.js';
+import type { FileService } from '../../services/FileService.js';
 import { badRequest } from '../../utils/errors.js';
+import { fileByIdSchema, listFilesSchema } from './schemas.js';
 
 export function fileRoutes(service: FileService) {
-  return async function routes(app: FastifyInstance) {
+  return function routes(app: FastifyInstance) {
     // All file routes require a valid access token.
     app.addHook('preHandler', authenticate);
 
@@ -61,4 +62,3 @@ export function fileRoutes(service: FileService) {
     });
   };
 }
-

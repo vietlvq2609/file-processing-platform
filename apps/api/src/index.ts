@@ -1,5 +1,5 @@
-import { buildApp } from './server.js';
 import { config } from './config.js';
+import { buildApp } from './server.js';
 import { ensureBucket } from './storage.js';
 
 await ensureBucket();

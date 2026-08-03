@@ -1,13 +1,14 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+
 import { AppLayout } from '../components/layout';
+import RouteErrorPage from '../components/RouteErrorPage';
+import CompressorPage from '../features/compressor/pages/CompressorPage';
+import ConverterPage from '../features/converter/pages/ConverterPage';
+import ToolsPage from '../features/tools/pages/ToolsPage';
 import DashboardPage from '../pages/DashboardPage';
 import FileDetailPage from '../pages/FileDetailPage';
 import LoginPage from '../pages/LoginPage';
-import ConverterPage from '../features/converter/pages/ConverterPage';
-import CompressorPage from '../features/compressor/pages/CompressorPage';
-import ToolsPage from '../features/tools/pages/ToolsPage';
 import ProtectedRoute from './ProtectedRoute';
-import RouteErrorPage from '../components/RouteErrorPage';
 
 export const router = createBrowserRouter([
   {

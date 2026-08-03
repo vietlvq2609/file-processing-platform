@@ -1,5 +1,5 @@
-import FileUploadZone from '../features/files/components/FileUploadZone';
 import FileList from '../features/files/components/FileList';
+import FileUploadZone from '../features/files/components/FileUploadZone';
 
 export default function DashboardPage() {
   return (

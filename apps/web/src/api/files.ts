@@ -1,6 +1,6 @@
-import { apiClient } from './client';
-import type { File as AppFile } from '../types/domain';
 import type { ApiListResponse, ApiSingleResponse } from '../types/api';
+import type { File as AppFile } from '../types/domain';
+import { apiClient } from './client';
 
 export interface ListFilesParams {
   page?: number;

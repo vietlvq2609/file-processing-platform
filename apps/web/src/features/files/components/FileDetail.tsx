@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { getDownloadUrl } from '../../../api/files';
 import type { File, Job } from '../../../types/domain';
 import { formatBytes } from '../../../utils/formatBytes';
 import { formatDate } from '../../../utils/formatDate';
-import { getDownloadUrl } from '../../../api/files';
 import { useDeleteFile } from '../hooks/useDeleteFile';
 import { useSubmitJob } from '../hooks/useSubmitJob';
 import JobProgressPanel from './JobProgressPanel';
@@ -63,7 +64,9 @@ export default function FileDetail({ file }: FileDetailProps) {
         </tbody>
       </table>
 
-      <div style={{ marginTop: 24, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+      <div
+        style={{ marginTop: 24, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}
+      >
         <a href={getDownloadUrl(file.id)} download={file.originalName}>
           <button>Download original</button>
         </a>

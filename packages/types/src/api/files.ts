@@ -1,5 +1,5 @@
 import type { File } from '../domain.js';
-import type { ApiResponse, ApiListResponse } from './common.js';
+import type { ApiListResponse, ApiResponse } from './common.js';
 
 // ─── POST /files (multipart/form-data) ───────────────────────────────────────
 // Request: FormData with a "file" field — no TypeScript shape needed.

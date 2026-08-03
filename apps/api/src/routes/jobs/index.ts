@@ -1,11 +1,12 @@
-import type { FastifyInstance } from 'fastify';
-import type { JobService } from '../../services/JobService.js';
-import { authenticate } from '../../plugins/authenticate.js';
-import { createJobSchema, listJobsSchema, jobByIdSchema } from './schemas.js';
 import type { JobStatus } from '@fpp/types';
+import type { FastifyInstance } from 'fastify';
+
+import { authenticate } from '../../plugins/authenticate.js';
+import type { JobService } from '../../services/JobService.js';
+import { createJobSchema, jobByIdSchema, listJobsSchema } from './schemas.js';
 
 export function jobRoutes(service: JobService) {
-  return async function routes(app: FastifyInstance) {
+  return function routes(app: FastifyInstance) {
     app.addHook('preHandler', authenticate);
 
     // ─── POST /jobs ──────────────────────────────────────────────────────────

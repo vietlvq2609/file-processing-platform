@@ -1,4 +1,5 @@
 import { Client } from 'minio';
+
 import { config } from './config.js';
 
 export const minioClient = new Client({

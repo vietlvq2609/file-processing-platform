@@ -1,6 +1,7 @@
-import { config as loadEnv } from 'dotenv';
-import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { config as loadEnv } from 'dotenv';
 import { z } from 'zod';
 
 // Resolve the monorepo root .env regardless of where the process is started.

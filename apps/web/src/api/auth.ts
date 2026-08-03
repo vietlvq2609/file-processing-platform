@@ -1,5 +1,5 @@
-import { apiClient } from './client';
 import type { PublicUser } from '../stores/authStore';
+import { apiClient } from './client';
 
 interface AuthResponse {
   data: PublicUser;

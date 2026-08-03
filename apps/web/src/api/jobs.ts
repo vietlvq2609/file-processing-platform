@@ -1,6 +1,6 @@
-import { apiClient } from './client';
-import type { Job } from '../types/domain';
 import type { ApiListResponse, ApiSingleResponse } from '../types/api';
+import type { Job } from '../types/domain';
+import { apiClient } from './client';
 
 export interface ListJobsParams {
   page?: number;

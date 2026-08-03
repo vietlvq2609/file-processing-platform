@@ -1,6 +1,7 @@
-import { config as loadEnv } from 'dotenv';
-import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { config as loadEnv } from 'dotenv';
 import { z } from 'zod';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -32,12 +33,19 @@ const EnvSchema = z.object({
   REDIS_URL: z.string().default('redis://localhost:6379'),
 
   // ── File storage ──────────────────────────────────────────────────────────
-  MAX_FILE_SIZE_BYTES: z.coerce.number().int().positive().default(50 * 1024 * 1024), // 50 MB
+  MAX_FILE_SIZE_BYTES: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(50 * 1024 * 1024), // 50 MB
 
   // ── MinIO ─────────────────────────────────────────────────────────────────
   MINIO_ENDPOINT: z.string().default('localhost'),
   MINIO_PORT: z.coerce.number().int().min(1).max(65535).default(9000),
-  MINIO_USE_SSL: z.string().default('false').transform((v) => v === 'true'),
+  MINIO_USE_SSL: z
+    .string()
+    .default('false')
+    .transform((v) => v === 'true'),
   MINIO_ACCESS_KEY: z.string().min(1).default('minioadmin'),
   MINIO_SECRET_KEY: z.string().min(1).default('minioadmin'),
   MINIO_BUCKET: z.string().min(1).default('uploads'),

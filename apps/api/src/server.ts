@@ -1,24 +1,25 @@
-import Fastify from 'fastify';
-import multipart from '@fastify/multipart';
-import cors from '@fastify/cors';
+import './types/index.js';
+
 import cookie from '@fastify/cookie';
+import cors from '@fastify/cors';
+import multipart from '@fastify/multipart';
 import websocket from '@fastify/websocket';
-import { createDb } from '@fpp/db';
+import { createDb, JobRepository } from '@fpp/db';
+import Fastify from 'fastify';
+
 import { config } from './config.js';
-import { minioClient } from './storage.js';
+import { registerErrorHandler } from './middleware/errorHandler.js';
 import { FileRepository } from './repositories/FileRepository.js';
-import { FileService } from './services/FileService.js';
 import { UserRepository } from './repositories/UserRepository.js';
-import { AuthService } from './services/AuthService.js';
-import { fileRoutes } from './routes/files/index.js';
 import { authRoutes } from './routes/auth/index.js';
+import { fileRoutes } from './routes/files/index.js';
 import { jobRoutes } from './routes/jobs/index.js';
 import { wsRoutes } from './routes/ws/index.js';
-import { JobRepository } from './repositories/JobRepository.js';
+import { AuthService } from './services/AuthService.js';
+import { FileService } from './services/FileService.js';
 import { JobService } from './services/JobService.js';
+import { minioClient } from './storage.js';
 import { startRedisSubscriber } from './ws/redisSubscriber.js';
-import { registerErrorHandler } from './middleware/errorHandler.js';
-import './types/index.js';
 
 export function buildApp() {
   const app = Fastify({

@@ -1,4 +1,5 @@
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+
 import { logout } from '../../api/auth';
 import { useAuthStore } from '../../stores/authStore';
 
@@ -64,9 +65,7 @@ export default function AppLayout() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {user && (
-            <span style={{ fontSize: 13, color: '#718096' }}>{user.email}</span>
-          )}
+          {user && <span style={{ fontSize: 13, color: '#718096' }}>{user.email}</span>}
           <button
             onClick={handleLogout}
             style={{

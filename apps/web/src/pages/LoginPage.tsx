@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from 'react';
+import { type FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { login } from '../api/auth';
 import { useAuthStore } from '../stores/authStore';
 
@@ -58,7 +59,13 @@ export default function LoginPage() {
           <div style={{ marginBottom: 16 }}>
             <label
               htmlFor="email"
-              style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 500, color: '#4a5568' }}
+              style={{
+                display: 'block',
+                marginBottom: 6,
+                fontSize: 13,
+                fontWeight: 500,
+                color: '#4a5568',
+              }}
             >
               Email
             </label>
@@ -86,7 +93,13 @@ export default function LoginPage() {
           <div style={{ marginBottom: 24 }}>
             <label
               htmlFor="password"
-              style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 500, color: '#4a5568' }}
+              style={{
+                display: 'block',
+                marginBottom: 6,
+                fontSize: 13,
+                fontWeight: 500,
+                color: '#4a5568',
+              }}
             >
               Password
             </label>

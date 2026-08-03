@@ -1,4 +1,5 @@
-import { pgTable, uuid, varchar, text, bigint, timestamp, pgEnum } from 'drizzle-orm/pg-core';
+import { bigint, pgEnum, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+
 import { users } from './users.js';
 
 export const fileStatusEnum = pgEnum('file_status', ['pending', 'ready', 'deleted']);

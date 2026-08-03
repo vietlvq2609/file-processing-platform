@@ -1,8 +1,9 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+import { getMe, refreshAccessToken } from './api/auth';
 import App from './App';
-import { refreshAccessToken, getMe } from './api/auth';
 import { useAuthStore } from './stores/authStore';
 
 const queryClient = new QueryClient();

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { useFile } from '../features/files/hooks/useFile';
+
 import FileDetail from '../features/files/components/FileDetail';
+import { useFile } from '../features/files/hooks/useFile';
 import { useRequiredParam } from '../hooks/useRequiredParam';
 
 export default function FileDetailPage() {

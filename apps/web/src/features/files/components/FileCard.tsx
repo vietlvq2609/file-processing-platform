@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
+
+import { getDownloadUrl } from '../../../api/files';
 import type { File } from '../../../types/domain';
 import { formatBytes } from '../../../utils/formatBytes';
 import { formatDate } from '../../../utils/formatDate';
-import { getDownloadUrl } from '../../../api/files';
 import { useDeleteFile } from '../hooks/useDeleteFile';
 
 interface FileCardProps {
