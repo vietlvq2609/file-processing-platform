@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto';
-import jwt from 'jsonwebtoken';
+
+import type { IUserRepository } from '@fpp/db';
 import bcrypt from 'bcryptjs';
-import type { UserRepository } from '../repositories/UserRepository.js';
-import { unauthorized, conflict, notFound } from '../utils/errors.js';
-import { config } from '../config.js';
+import jwt from 'jsonwebtoken';
+
+import { conflict, notFound, unauthorized } from '../utils/errors.js';
 
 /** Public-safe user shape — password and refresh token hash are never included. */
 export interface PublicUser {
@@ -11,6 +12,14 @@ export interface PublicUser {
   email: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface AuthServiceConfig {
+  accessSecret: string;
+  refreshSecret: string;
+  accessTtlSeconds: number;
+  refreshTtlSeconds: number;
+  bcryptRounds: number;
 }
 
 function toPublicUser(user: {
@@ -28,14 +37,21 @@ function hashToken(token: string): string {
 }
 
 export class AuthService {
-  constructor(private readonly repo: UserRepository) {}
+  constructor(
+    private readonly repo: IUserRepository,
+    private readonly cfg: AuthServiceConfig
+  ) {}
 
   private signAccessToken(userId: string): string {
-    return jwt.sign({ sub: userId }, config.jwt.accessSecret, { expiresIn: config.jwt.accessTtlSeconds });
+    return jwt.sign({ sub: userId }, this.cfg.accessSecret, {
+      expiresIn: this.cfg.accessTtlSeconds,
+    });
   }
 
   private signRefreshToken(userId: string): string {
-    return jwt.sign({ sub: userId }, config.jwt.refreshSecret, { expiresIn: config.jwt.refreshTtlSeconds });
+    return jwt.sign({ sub: userId }, this.cfg.refreshSecret, {
+      expiresIn: this.cfg.refreshTtlSeconds,
+    });
   }
 
   // ─── Public methods ────────────────────────────────────────────────────────
@@ -49,7 +65,7 @@ export class AuthService {
       throw conflict('EMAIL_TAKEN', 'An account with this email address already exists');
     }
 
-    const passwordHash = await bcrypt.hash(password, config.auth.bcryptRounds);
+    const passwordHash = await bcrypt.hash(password, this.cfg.bcryptRounds);
     const user = await this.repo.create({ email, passwordHash });
 
     const accessToken = this.signAccessToken(user.id);
@@ -85,7 +101,7 @@ export class AuthService {
   async refresh(token: string): Promise<{ accessToken: string }> {
     let payload: jwt.JwtPayload;
     try {
-      payload = jwt.verify(token, config.jwt.refreshSecret) as jwt.JwtPayload;
+      payload = jwt.verify(token, this.cfg.refreshSecret) as jwt.JwtPayload;
     } catch {
       throw unauthorized('INVALID_REFRESH_TOKEN', 'Refresh token is invalid or expired');
     }

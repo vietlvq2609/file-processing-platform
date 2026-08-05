@@ -1,8 +1,7 @@
-import type { Job as DbJob } from '@fpp/db';
-import type { JobRepository, ListJobOptions } from '../repositories/JobRepository.js';
-import type { FileRepository } from '../repositories/FileRepository.js';
-import { notFound, forbidden, badRequest } from '../utils/errors.js';
-import { jobQueue } from '../queue/jobQueue.js';
+import type { IFileRepository, IJobRepository, Job as DbJob, ListJobOptions } from '@fpp/db';
+import type { Queue } from 'bullmq';
+
+import { badRequest, forbidden, notFound } from '../utils/errors.js';
 
 export interface PaginatedJobs {
   data: DbJob[];
@@ -16,8 +15,9 @@ export interface PaginatedJobs {
 
 export class JobService {
   constructor(
-    private readonly jobRepo: JobRepository,
-    private readonly fileRepo: FileRepository
+    private readonly jobRepo: IJobRepository,
+    private readonly fileRepo: IFileRepository,
+    private readonly queue: Queue
   ) {}
 
   async create(userId: string, fileId: string, type = 'default'): Promise<DbJob> {
@@ -30,7 +30,7 @@ export class JobService {
     const job = await this.jobRepo.create({ userId, fileId, type, status: 'pending', progress: 0 });
 
     // Enqueue to BullMQ — the Worker will pick this up asynchronously.
-    await jobQueue.add('process', { jobId: job.id, fileId, type, userId });
+    await this.queue.add('process', { jobId: job.id, fileId, type, userId });
 
     return job;
   }

@@ -3,10 +3,9 @@ import type { WsClientMessage } from '@fpp/types';
 import type { FastifyInstance } from 'fastify';
 import jwt from 'jsonwebtoken';
 
-import { config } from '../../config.js';
-import { wsManager } from '../../ws/WsManager.js';
+import type { WsManager } from '../../ws/WsManager.js';
 
-export function wsRoutes() {
+export function wsRoutes(manager: WsManager, jwtAccessSecret: string) {
   return function routes(app: FastifyInstance) {
     // GET /ws?token=<accessToken>
     // The token is passed as a query param because browsers cannot set
@@ -21,14 +20,14 @@ export function wsRoutes() {
 
       let userId: string;
       try {
-        const payload = jwt.verify(token, config.jwt.accessSecret) as { sub: string };
+        const payload = jwt.verify(token, jwtAccessSecret) as { sub: string };
         userId = payload.sub;
       } catch {
         socket.close(4001, 'Invalid or expired token');
         return;
       }
 
-      wsManager.add(userId, socket);
+      manager.add(userId, socket);
 
       // ── Message handler ───────────────────────────────────────────────────
       socket.on('message', (raw: Buffer) => {
@@ -40,15 +39,15 @@ export function wsRoutes() {
         }
 
         if (msg.type === 'subscribe') {
-          wsManager.subscribe(socket, msg.jobId);
+          manager.subscribe(socket, msg.jobId);
         } else if (msg.type === 'unsubscribe') {
-          wsManager.unsubscribe(socket, msg.jobId);
+          manager.unsubscribe(socket, msg.jobId);
         }
       });
 
       // ── Cleanup ───────────────────────────────────────────────────────────
       socket.on('close', () => {
-        wsManager.remove(socket);
+        manager.remove(socket);
       });
     });
   };

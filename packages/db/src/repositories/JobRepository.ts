@@ -1,7 +1,9 @@
-import { eq, and, count, desc, inArray } from 'drizzle-orm';
-import { jobs } from '@fpp/db';
-import type { DrizzleClient, Job as DbJob, NewJob } from '@fpp/db';
 import type { JobStatus } from '@fpp/types';
+import { and, count, desc, eq, inArray } from 'drizzle-orm';
+
+import type { DrizzleClient } from '../client.js';
+import type { Job as DbJob, NewJob } from '../schema/index.js';
+import { jobs } from '../schema/index.js';
 
 export interface ListJobOptions {
   page: number;
@@ -10,7 +12,20 @@ export interface ListJobOptions {
   fileId?: string;
 }
 
-export class JobRepository {
+export interface IJobRepository {
+  create(data: NewJob): Promise<DbJob>;
+  findAllByUser(userId: string, opts: ListJobOptions): Promise<{ data: DbJob[]; total: number }>;
+  findById(userId: string, jobId: string): Promise<DbJob | null>;
+  updateStatus(
+    jobId: string,
+    status: JobStatus,
+    extra?: { errorMessage?: string; outputPath?: string; progress?: number }
+  ): Promise<DbJob | null>;
+  cancel(userId: string, jobId: string): Promise<DbJob | null>;
+  updateProgress(jobId: string, progress: number): Promise<void>;
+}
+
+export class JobRepository implements IJobRepository {
   constructor(private readonly db: DrizzleClient) {}
 
   async create(data: NewJob): Promise<DbJob> {
@@ -84,5 +99,9 @@ export class JobRepository {
       )
       .returning();
     return job ?? null;
+  }
+
+  async updateProgress(jobId: string, progress: number): Promise<void> {
+    await this.db.update(jobs).set({ progress, updatedAt: new Date() }).where(eq(jobs.id, jobId));
   }
 }

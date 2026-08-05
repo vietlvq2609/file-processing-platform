@@ -1,6 +1,16 @@
 import type { FileStatus, JobStatus } from './enums.js';
 
 /**
+ * Payload enqueued to the BullMQ jobs queue by the API and consumed by the worker.
+ */
+export interface JobPayload {
+  jobId: string;
+  fileId: string;
+  type: string;
+  userId: string;
+}
+
+/**
  * Public representation of a user account.
  * The password hash is never included in API responses.
  */

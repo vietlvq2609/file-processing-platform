@@ -1,24 +1,15 @@
 import { Redis } from 'ioredis';
-import { config } from '../config.js';
-import { wsManager } from './WsManager.js';
 
-// Dedicated subscriber connection — cannot share with BullMQ connection
-// because a Redis connection in subscribe mode can only run subscribe commands.
-const subscriber = new Redis(config.redis.url, {
-  maxRetriesPerRequest: null,
-  lazyConnect: true,
-});
+import type { WsManager } from './WsManager.js';
 
-/**
- * Subscribe to all job event channels on Redis Pub/Sub and forward
- * each message to the WebSocket clients that are subscribed to that job.
- *
- * Channel naming convention (matches the Worker):
- *   job:progress:<jobId>
- *   job:completed:<jobId>
- *   job:failed:<jobId>
- */
-export async function startRedisSubscriber(): Promise<void> {
+export async function startRedisSubscriber(redisUrl: string, manager: WsManager): Promise<void> {
+  // Dedicated subscriber connection — cannot share with BullMQ connection
+  // because a Redis connection in subscribe mode can only run subscribe commands.
+  const subscriber = new Redis(redisUrl, {
+    maxRetriesPerRequest: null,
+    lazyConnect: true,
+  });
+
   await subscriber.connect();
 
   // Use pattern subscribe to catch all job channels in one subscription
@@ -32,14 +23,16 @@ export async function startRedisSubscriber(): Promise<void> {
     const eventType = parts[1]; // 'progress' | 'completed' | 'failed'
     const jobId = parts.slice(2).join(':'); // remainder is the jobId (UUID, no colons, but safe)
 
-    let payload: object;
+    let payload: Record<string, unknown>;
     try {
-      payload = JSON.parse(message);
+      const parsed: unknown = JSON.parse(message);
+      if (typeof parsed !== 'object' || parsed === null) return;
+      payload = parsed as Record<string, unknown>;
     } catch {
       return;
     }
 
     const event = { type: `job:${eventType}`, jobId, ...payload };
-    wsManager.broadcast(jobId, event);
+    manager.broadcast(jobId, event);
   });
 }

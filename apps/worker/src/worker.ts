@@ -1,10 +1,11 @@
+import { createDb, JobRepository } from '@fpp/db';
 import { Worker } from 'bullmq';
 import { Redis } from 'ioredis';
-import { createDb } from '@fpp/db';
+
 import { config } from './config.js';
-import { JobRepository } from './repositories/JobRepository.js';
-import { defaultProcessor } from './processors/defaultProcessor.js';
+import { logger } from './logger.js';
 import type { JobPayload } from './processors/defaultProcessor.js';
+import { defaultProcessor } from './processors/defaultProcessor.js';
 
 const JOBS_QUEUE_NAME = 'jobs';
 
@@ -22,7 +23,7 @@ const worker = new Worker<JobPayload>(
     switch (type) {
       case 'default':
       default:
-        await defaultProcessor(job, jobRepo, redis);
+        await defaultProcessor.process(job, jobRepo, redis);
     }
   },
   {
@@ -32,14 +33,20 @@ const worker = new Worker<JobPayload>(
 );
 
 worker.on('completed', (job) => {
-  console.log(`[worker] Job ${job.id} (${job.data.jobId}) completed`);
+  logger.info({ jobId: job.data.jobId, bullId: job.id }, 'Job completed');
 });
 
-worker.on('failed', async (job, err) => {
+worker.on('failed', (job, err) => {
   if (!job) return;
-  console.error(`[worker] Job ${job.id} (${job.data.jobId}) failed:`, err.message);
-  await jobRepo.updateStatus(job.data.jobId, 'failed', { errorMessage: err.message });
-  await redis.publish(`job:failed:${job.data.jobId}`, JSON.stringify({ error: err.message }));
+  logger.error({ jobId: job.data.jobId, bullId: job.id, err: err.message }, 'Job failed');
+  void jobRepo
+    .updateStatus(job.data.jobId, 'failed', { errorMessage: err.message })
+    .then(() =>
+      redis.publish(`job:failed:${job.data.jobId}`, JSON.stringify({ error: err.message }))
+    )
+    .catch((updateErr: unknown) => {
+      logger.error({ err: updateErr }, 'Failed to update job status after failure');
+    });
 });
 
 export { worker };

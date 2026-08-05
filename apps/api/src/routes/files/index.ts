@@ -19,7 +19,11 @@ export function fileRoutes(service: FileService) {
         throw badRequest('NO_FILE', 'Request must include a file field');
       }
 
-      const file = await service.upload(request.userId, data);
+      const file = await service.upload(request.userId, {
+        filename: data.filename,
+        mimetype: data.mimetype,
+        file: data.file,
+      });
       return reply.status(201).send({ data: file });
     });
 

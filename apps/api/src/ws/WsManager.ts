@@ -58,5 +58,3 @@ export class WsManager {
     }
   }
 }
-
-export const wsManager = new WsManager();

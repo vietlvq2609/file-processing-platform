@@ -1,6 +1,8 @@
-import { eq, and, ilike, count, desc, ne } from 'drizzle-orm';
-import { files } from '@fpp/db';
-import type { DrizzleClient, File as DbFile, NewFile } from '@fpp/db';
+import { and, count, desc, eq, ilike, ne } from 'drizzle-orm';
+
+import type { DrizzleClient } from '../client.js';
+import type { File as DbFile, NewFile } from '../schema/index.js';
+import { files } from '../schema/index.js';
 
 export interface ListOptions {
   page: number;
@@ -8,7 +10,14 @@ export interface ListOptions {
   search?: string;
 }
 
-export class FileRepository {
+export interface IFileRepository {
+  create(data: NewFile): Promise<DbFile>;
+  findAllByUser(userId: string, opts: ListOptions): Promise<{ data: DbFile[]; total: number }>;
+  findById(userId: string, fileId: string): Promise<DbFile | null>;
+  softDelete(userId: string, fileId: string): Promise<DbFile | null>;
+}
+
+export class FileRepository implements IFileRepository {
   constructor(private readonly db: DrizzleClient) {}
 
   async create(data: NewFile): Promise<DbFile> {

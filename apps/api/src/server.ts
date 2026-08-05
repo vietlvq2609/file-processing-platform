@@ -4,13 +4,12 @@ import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import websocket from '@fastify/websocket';
-import { createDb, JobRepository } from '@fpp/db';
+import { createDb, FileRepository, JobRepository, UserRepository } from '@fpp/db';
 import Fastify from 'fastify';
 
 import { config } from './config.js';
 import { registerErrorHandler } from './middleware/errorHandler.js';
-import { FileRepository } from './repositories/FileRepository.js';
-import { UserRepository } from './repositories/UserRepository.js';
+import { createJobQueue } from './queue/jobQueue.js';
 import { authRoutes } from './routes/auth/index.js';
 import { fileRoutes } from './routes/files/index.js';
 import { jobRoutes } from './routes/jobs/index.js';
@@ -20,6 +19,7 @@ import { FileService } from './services/FileService.js';
 import { JobService } from './services/JobService.js';
 import { minioClient } from './storage.js';
 import { startRedisSubscriber } from './ws/redisSubscriber.js';
+import { WsManager } from './ws/WsManager.js';
 
 export function buildApp() {
   const app = Fastify({
@@ -47,26 +47,35 @@ export function buildApp() {
   });
 
   // ── Dependency composition ─────────────────────────────────────────────────
-  // The db client is created once and shared across all repositories.
   const db = createDb(config.database.url);
+  const jobQueue = createJobQueue(config.redis.url);
+  const wsManager = new WsManager();
 
   const userRepository = new UserRepository(db);
-  const authService = new AuthService(userRepository);
+  const authService = new AuthService(userRepository, {
+    accessSecret: config.jwt.accessSecret,
+    refreshSecret: config.jwt.refreshSecret,
+    accessTtlSeconds: config.jwt.accessTtlSeconds,
+    refreshTtlSeconds: config.jwt.refreshTtlSeconds,
+    bcryptRounds: config.auth.bcryptRounds,
+  });
 
   const fileRepository = new FileRepository(db);
   const fileService = new FileService(fileRepository, minioClient);
 
   const jobRepository = new JobRepository(db);
-  const jobService = new JobService(jobRepository, fileRepository);
+  const jobService = new JobService(jobRepository, fileRepository, jobQueue);
 
   // ── Routes ─────────────────────────────────────────────────────────────────
   app.register(authRoutes(authService), { prefix: '/api/auth' });
   app.register(fileRoutes(fileService), { prefix: '/api/files' });
   app.register(jobRoutes(jobService), { prefix: '/api/jobs' });
-  app.register(wsRoutes(), { prefix: '/ws' });
+  app.register(wsRoutes(wsManager, config.jwt.accessSecret), { prefix: '/ws' });
 
   // Start Redis Pub/Sub listener for job progress events
-  startRedisSubscriber().catch((err) => app.log.error({ err }, 'Redis subscriber failed to start'));
+  startRedisSubscriber(config.redis.url, wsManager).catch((err) =>
+    app.log.error({ err }, 'Redis subscriber failed to start')
+  );
 
   // ── Error handler ──────────────────────────────────────────────────────────
   registerErrorHandler(app);

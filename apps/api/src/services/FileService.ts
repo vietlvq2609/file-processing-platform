@@ -1,12 +1,19 @@
-import { extname } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { extname } from 'node:path';
 import type { Readable } from 'node:stream';
-import type { Client as MinioClient } from 'minio';
-import type { MultipartFile } from '@fastify/multipart';
+
 import type { File as DbFile } from '@fpp/db';
-import type { FileRepository, ListOptions } from '../repositories/FileRepository.js';
-import { notFound, conflict } from '../utils/errors.js';
+import type { IFileRepository, ListOptions } from '@fpp/db';
+import type { Client as MinioClient } from 'minio';
+
 import { config } from '../config.js';
+import { conflict, notFound } from '../utils/errors.js';
+
+export interface UploadInput {
+  filename: string;
+  mimetype: string;
+  file: Readable;
+}
 
 export interface PaginatedFiles {
   data: DbFile[];
@@ -20,21 +27,21 @@ export interface PaginatedFiles {
 
 export class FileService {
   constructor(
-    private readonly repo: FileRepository,
-    private readonly storage: MinioClient,
+    private readonly repo: IFileRepository,
+    private readonly storage: MinioClient
   ) {}
 
-  async upload(userId: string, multipart: MultipartFile): Promise<DbFile> {
-    const ext = extname(multipart.filename);
+  async upload(userId: string, input: UploadInput): Promise<DbFile> {
+    const ext = extname(input.filename);
     const objectKey = `${userId}/${randomUUID()}${ext}`;
 
-    await this.storage.putObject(config.minio.bucket, objectKey, multipart.file);
+    await this.storage.putObject(config.minio.bucket, objectKey, input.file);
     const { size } = await this.storage.statObject(config.minio.bucket, objectKey);
 
     return this.repo.create({
       userId,
-      originalName: multipart.filename,
-      mimeType: multipart.mimetype,
+      originalName: input.filename,
+      mimeType: input.mimetype,
       size,
       storagePath: objectKey,
       status: 'ready',
