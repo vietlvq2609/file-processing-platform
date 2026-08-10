@@ -9,6 +9,8 @@
     "dev:web": "pnpm --filter @fpp/web dev",
     "dev:worker": "pnpm --filter @fpp/worker dev",
     "build": "pnpm --filter @fpp/db build && pnpm --filter @fpp/types build && pnpm --filter @fpp/api build && pnpm --filter @fpp/worker build",
+    "test": "pnpm -r test",
+    "test:coverage": "pnpm -r test:coverage",
     "start": "pnpm --filter @fpp/api start",
     "db:generate": "pnpm --filter @fpp/db generate",
     "db:migrate": "pnpm --filter @fpp/db migrate",
