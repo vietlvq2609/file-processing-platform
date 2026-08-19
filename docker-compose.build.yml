@@ -1,10 +1,15 @@
+# Production compose — builds compiled images and serves them behind nginx.
+# Usage: docker compose -f docker-compose.build.yml up -d --build
+#
+# Before running:
+#   1. Copy .env.example → .env and fill in all secrets.
+#   2. Set CORS_ORIGIN to your public domain (e.g. https://example.com).
+
 services:
   redis:
     image: redis:7-alpine
     container_name: fpp-redis
     restart: unless-stopped
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -21,8 +26,6 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-file-processing-platform-db}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
@@ -43,9 +46,6 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
-    ports:
-      - "${MINIO_PORT:-9000}:9000"
-      - "${MINIO_CONSOLE_PORT:-9001}:9001"
     volumes:
       - minio_data:/data
     healthcheck:
@@ -60,28 +60,24 @@ services:
   api:
     build:
       context: .
-      dockerfile: infra/docker/dev.Dockerfile
+      dockerfile: infra/docker/api.Dockerfile
     container_name: fpp-api
-    working_dir: /app
-    # Run migrations first, then start the dev server with hot reload.
-    command: >
-      sh -c "pnpm --filter @fpp/db migrate &&
-             pnpm --filter @fpp/api dev"
-    volumes:
-      - ./apps/api/src:/app/apps/api/src
-      - ./packages/db/src:/app/packages/db/src
-      - ./packages/db/drizzle:/app/packages/db/drizzle
-      - ./packages/db/drizzle.config.ts:/app/packages/db/drizzle.config.ts
-      - ./packages/types/src:/app/packages/types/src
-      - ./.env:/app/.env
+    restart: unless-stopped
     env_file: .env
     environment:
+      NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-file-processing-platform-db}
       REDIS_URL: redis://redis:6379
       MINIO_ENDPOINT: minio
-      CORS_ORIGIN: http://localhost:5173
-    ports:
-      - "${PORT:-3000}:3000"
+      # Set CORS_ORIGIN to your public domain. Behind nginx it can be omitted
+      # since all traffic is same-origin, but it is kept for direct API access.
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     depends_on:
       postgres:
         condition: service_healthy
@@ -89,58 +85,38 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-    restart: unless-stopped
     networks:
       - app_network
 
   worker:
     build:
       context: .
-      dockerfile: infra/docker/dev.Dockerfile
+      dockerfile: infra/docker/worker.Dockerfile
     container_name: fpp-worker
-    working_dir: /app
-    command: pnpm --filter @fpp/worker dev
-    volumes:
-      - ./apps/worker/src:/app/apps/worker/src
-      - ./packages/db/src:/app/packages/db/src
-      - ./packages/types/src:/app/packages/types/src
-      - ./.env:/app/.env
+    restart: unless-stopped
     env_file: .env
     environment:
+      NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-file-processing-platform-db}
       REDIS_URL: redis://redis:6379
     depends_on:
-      postgres:
+      # Wait for the API to be healthy so migrations are guaranteed to have run.
+      api:
         condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
     networks:
       - app_network
 
   web:
     build:
       context: .
-      dockerfile: infra/docker/dev.Dockerfile
+      dockerfile: infra/docker/web.Dockerfile
     container_name: fpp-web
-    working_dir: /app
-    command: pnpm --filter @fpp/web dev
-    volumes:
-      - ./apps/web/src:/app/apps/web/src
-      - ./apps/web/index.html:/app/apps/web/index.html
-      - ./apps/web/vite.config.ts:/app/apps/web/vite.config.ts
-      - ./packages/types/src:/app/packages/types/src
-      - ./.env:/app/.env
-    env_file: .env
-    environment:
-      # Server-side variable — used by vite.config.ts to proxy requests to the
-      # api container instead of localhost.
-      API_PROXY_TARGET: http://api:3000
-    ports:
-      - "5173:5173"
-    depends_on:
-      - api
     restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      api:
+        condition: service_healthy
     networks:
       - app_network
 

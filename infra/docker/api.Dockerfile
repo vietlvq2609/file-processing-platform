@@ -52,10 +52,17 @@ COPY --from=builder /app/apps/api/dist        ./apps/api/dist
 COPY --from=builder /app/packages/db/dist     ./packages/db/dist
 COPY --from=builder /app/packages/types/dist  ./packages/types/dist
 
+# Migration files are needed at runtime by the entrypoint script.
+COPY packages/db/drizzle ./packages/db/drizzle
+
+# Entrypoint runs migrations then hands off to the server.
+COPY infra/docker/api-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 WORKDIR /app/apps/api
 
 ENV NODE_ENV=production
 
 EXPOSE 3000
 
-CMD ["node", "dist/index.js"]
+ENTRYPOINT ["/entrypoint.sh"]

@@ -67,6 +67,8 @@ export function buildApp() {
   const jobService = new JobService(jobRepository, fileRepository, jobQueue);
 
   // ── Routes ─────────────────────────────────────────────────────────────────
+  app.get('/healthz', () => ({ status: 'ok' }));
+
   app.register(authRoutes(authService), { prefix: '/api/auth' });
   app.register(fileRoutes(fileService), { prefix: '/api/files' });
   app.register(jobRoutes(jobService), { prefix: '/api/jobs' });
