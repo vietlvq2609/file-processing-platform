@@ -8,8 +8,11 @@ import { AppError, unauthorized } from '../utils/errors.js';
  * Fastify preHandler that verifies the Bearer access token and populates request.userId.
  * Add this to any route that requires authentication:
  *   { preHandler: [authenticate] }
+ *
+ * Must be async for Fastify v5 preHandler compatibility, even though logic is synchronous.
  */
-export function authenticate(request: FastifyRequest, _reply: FastifyReply): void {
+// eslint-disable-next-line @typescript-eslint/require-await
+export async function authenticate(request: FastifyRequest, _reply: FastifyReply): Promise<void> {
   const authHeader = request.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
     throw unauthorized('MISSING_TOKEN', 'Authorization token is required');
