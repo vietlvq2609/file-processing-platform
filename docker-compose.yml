@@ -63,16 +63,13 @@ services:
       dockerfile: infra/docker/dev.Dockerfile
     container_name: fpp-api
     working_dir: /app
-    # Run migrations first, then start the dev server with hot reload.
-    command: >
-      sh -c "pnpm --filter @fpp/db migrate &&
-        pnpm --filter @fpp/api dev"
+    # Dev mode: tsx resolves imports via tsconfig path aliases (no build needed).
+    # Run migrations manually: docker compose exec api pnpm --filter @fpp/db migrate
+    command: pnpm --filter @fpp/api dev
     volumes:
-      - ./apps/api/src:/app/apps/api/src
-      - ./packages/db/src:/app/packages/db/src
-      - ./packages/db/drizzle:/app/packages/db/drizzle
-      - ./packages/db/drizzle.config.ts:/app/packages/db/drizzle.config.ts
-      - ./packages/types/src:/app/packages/types/src
+      - ./apps/api:/app/apps/api
+      - ./packages/db:/app/packages/db
+      - ./packages/types:/app/packages/types
       - ./.env:/app/.env
     env_file: .env
     environment:
@@ -101,9 +98,9 @@ services:
     working_dir: /app
     command: pnpm --filter @fpp/worker dev
     volumes:
-      - ./apps/worker/src:/app/apps/worker/src
-      - ./packages/db/src:/app/packages/db/src
-      - ./packages/types/src:/app/packages/types/src
+      - ./apps/worker:/app/apps/worker
+      - ./packages/db:/app/packages/db
+      - ./packages/types:/app/packages/types
       - ./.env:/app/.env
     env_file: .env
     environment:
@@ -126,10 +123,8 @@ services:
     working_dir: /app
     command: pnpm --filter @fpp/web dev
     volumes:
-      - ./apps/web/src:/app/apps/web/src
-      - ./apps/web/index.html:/app/apps/web/index.html
-      - ./apps/web/vite.config.ts:/app/apps/web/vite.config.ts
-      - ./packages/types/src:/app/packages/types/src
+      - ./apps/web:/app/apps/web
+      - ./packages/types:/app/packages/types
       - ./.env:/app/.env
     env_file: .env
     environment:

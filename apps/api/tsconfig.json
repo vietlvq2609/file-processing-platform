@@ -10,7 +10,11 @@
     "skipLibCheck": true,
     "declaration": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "paths": {
+      "@fpp/db": ["../../packages/db/src"],
+      "@fpp/types": ["../../packages/types/src"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"],
