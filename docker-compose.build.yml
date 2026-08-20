@@ -99,9 +99,12 @@ services:
       NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-file-processing-platform-db}
       REDIS_URL: redis://redis:6379
+      MINIO_ENDPOINT: minio
     depends_on:
       # Wait for the API to be healthy so migrations are guaranteed to have run.
       api:
+        condition: service_healthy
+      minio:
         condition: service_healthy
     networks:
       - app_network
