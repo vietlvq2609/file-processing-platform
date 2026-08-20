@@ -4,12 +4,13 @@ import react from '@vitejs/plugin-react'
 // In Docker dev the Vite server runs inside a container and proxies to the api
 // service by name. Locally it falls back to localhost.
 const API_TARGET = process.env.API_PROXY_TARGET ?? 'http://localhost:3000'
+const WEB_PORT = parseInt(process.env.WEB_CONTAINER_PORT ?? '5173', 10)
 
 export default defineConfig({
   plugins: [react()],
   envDir: '../../',
   server: {
-    port: 5173,
+    port: WEB_PORT,
     host: '0.0.0.0',
     proxy: {
       '/api': API_TARGET,

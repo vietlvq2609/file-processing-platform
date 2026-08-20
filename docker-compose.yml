@@ -3,8 +3,9 @@ services:
     image: redis:7-alpine
     container_name: fpp-redis
     restart: unless-stopped
+    # Internal service — only exposed for debugging access from host
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "${REDIS_PORT:-3003}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -21,8 +22,9 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-file-processing-platform-db}
+    # Internal service — only exposed for debugging access from host
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-3002}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
@@ -43,9 +45,10 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    # Internal service — only exposed for debugging access from host
     ports:
-      - "${MINIO_PORT:-9000}:9000"
-      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+      - "${MINIO_PORT:-3004}:9000"
+      - "${MINIO_CONSOLE_PORT:-3005}:9001"
     volumes:
       - minio_data:/data
     healthcheck:
@@ -77,8 +80,9 @@ services:
       REDIS_URL: redis://redis:6379
       MINIO_ENDPOINT: minio
       CORS_ORIGIN: http://localhost:5173
+    # Public-facing service
     ports:
-      - "${PORT:-3000}:3000"
+      - "${API_PORT:-3000}:${API_CONTAINER_PORT:-3000}"
     depends_on:
       postgres:
         condition: service_healthy
@@ -130,9 +134,10 @@ services:
     environment:
       # Server-side variable — used by vite.config.ts to proxy requests to the
       # api container instead of localhost.
-      API_PROXY_TARGET: http://api:3000
+      API_PROXY_TARGET: http://api:${API_CONTAINER_PORT:-3000}
+    # Public-facing service
     ports:
-      - "5173:5173"
+      - "${WEB_PORT:-3001}:${WEB_CONTAINER_PORT:-5173}"
     depends_on:
       - api
     restart: unless-stopped
