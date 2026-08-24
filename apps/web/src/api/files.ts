@@ -37,6 +37,9 @@ export async function deleteFile(id: string): Promise<void> {
   await apiClient.delete(`/files/${id}`);
 }
 
-export function getDownloadUrl(id: string): string {
-  return `/api/files/${id}/download`;
+export async function downloadFile(id: string): Promise<Blob> {
+  const response = await apiClient.get(`/files/${id}/download`, {
+    responseType: 'blob',
+  });
+  return response.data;
 }

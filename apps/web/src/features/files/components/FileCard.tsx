@@ -1,17 +1,18 @@
 import { Link } from 'react-router-dom';
 
-import { getDownloadUrl } from '../../../api/files';
 import type { File } from '../../../types/domain';
 import { formatBytes } from '../../../utils/formatBytes';
 import { formatDate } from '../../../utils/formatDate';
 import { useDeleteFile } from '../hooks/useDeleteFile';
+import { useDownloadFile } from '../hooks/useDownloadFile';
 
 interface FileCardProps {
   file: File;
 }
 
 export default function FileCard({ file }: FileCardProps) {
-  const { mutate: remove, isPending } = useDeleteFile();
+  const { mutate: remove, isPending: isDeleting } = useDeleteFile();
+  const { mutate: download, isPending: isDownloading, error: downloadError } = useDownloadFile();
 
   return (
     <div className="mb-2 flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-4 py-3">
@@ -31,20 +32,32 @@ export default function FileCard({ file }: FileCardProps) {
         >
           {file.status}
         </span>
+        {downloadError && (
+          <div className="mt-2 text-xs text-red-600">Download failed: {downloadError.message}</div>
+        )}
       </div>
 
       <div className="flex shrink-0 gap-2">
-        <a
-          href={getDownloadUrl(file.id)}
-          download={file.originalName}
-          className="text-sm text-blue-600 no-underline"
+        <button
+          onClick={() => download({ fileId: file.id, fileName: file.originalName })}
+          disabled={isDownloading}
+          className={`border-none bg-transparent p-0 text-sm text-blue-600 ${isDownloading ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}
         >
-          Download
-        </a>
+          {isDownloading ? 'Downloading...' : 'Download'}
+        </button>
+        {downloadError && (
+          <button
+            onClick={() => download({ fileId: file.id, fileName: file.originalName })}
+            disabled={isDownloading}
+            className="border-none bg-transparent p-0 text-sm text-blue-600 hover:underline"
+          >
+            Retry
+          </button>
+        )}
         <button
           onClick={() => remove(file.id)}
-          disabled={isPending}
-          className={`border-none bg-transparent p-0 text-sm text-red-500 ${isPending ? 'cursor-wait' : 'cursor-pointer'}`}
+          disabled={isDeleting}
+          className={`border-none bg-transparent p-0 text-sm text-red-500 ${isDeleting ? 'cursor-wait' : 'cursor-pointer'}`}
         >
           Delete
         </button>

@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { getDownloadUrl } from '../../../api/files';
 import type { File, Job } from '../../../types/domain';
 import { formatBytes } from '../../../utils/formatBytes';
 import { formatDate } from '../../../utils/formatDate';
 import { useDeleteFile } from '../hooks/useDeleteFile';
+import { useDownloadFile } from '../hooks/useDownloadFile';
 import { useSubmitJob } from '../hooks/useSubmitJob';
 import JobProgressPanel from './JobProgressPanel';
 
@@ -16,6 +16,7 @@ interface FileDetailProps {
 export default function FileDetail({ file }: FileDetailProps) {
   const navigate = useNavigate();
   const { mutate: remove, isPending: isDeleting } = useDeleteFile();
+  const { mutate: download, isPending: isDownloading, error: downloadError } = useDownloadFile();
   const { mutate: submitJob, isPending: isSubmitting } = useSubmitJob();
   const [activeJob, setActiveJob] = useState<Job | null>(null);
 
@@ -51,10 +52,29 @@ export default function FileDetail({ file }: FileDetailProps) {
         </tbody>
       </table>
 
+      {downloadError && (
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
+          Download failed: {downloadError.message}
+        </div>
+      )}
+
       <div className="mt-6 flex flex-wrap items-center gap-3">
-        <a href={getDownloadUrl(file.id)} download={file.originalName}>
-          <button>Download original</button>
-        </a>
+        <button
+          onClick={() => download({ fileId: file.id, fileName: file.originalName })}
+          disabled={isDownloading}
+          className={`rounded-md border-none bg-green-600 px-3.5 py-1.5 text-xs font-semibold text-white ${isDownloading ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}
+        >
+          {isDownloading ? 'Downloading...' : 'Download original'}
+        </button>
+        {downloadError && (
+          <button
+            onClick={() => download({ fileId: file.id, fileName: file.originalName })}
+            disabled={isDownloading}
+            className="text-xs font-semibold text-green-600 hover:underline"
+          >
+            Retry
+          </button>
+        )}
         {!activeJob && (
           <button
             onClick={handleProcess}

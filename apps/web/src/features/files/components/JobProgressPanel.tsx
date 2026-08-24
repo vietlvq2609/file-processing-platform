@@ -1,6 +1,6 @@
-import { getDownloadUrl } from '../../../api/files';
 import { useJobWebSocket } from '../../../hooks/useJobWebSocket';
 import type { Job } from '../../../types/domain';
+import { useDownloadFile } from '../hooks/useDownloadFile';
 
 interface JobProgressPanelProps {
   job: Job;
@@ -32,6 +32,7 @@ export default function JobProgressPanel({ job }: JobProgressPanelProps) {
     progress: job.progress,
     status: job.status,
   });
+  const { mutate: download, isPending: isDownloading, error: downloadError } = useDownloadFile();
 
   return (
     <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 px-5 py-4">
@@ -56,16 +57,32 @@ export default function JobProgressPanel({ job }: JobProgressPanelProps) {
       </div>
 
       {error && <p className="mb-0 mt-2.5 text-sm text-red-500">{error}</p>}
+      {downloadError && (
+        <p className="mb-0 mt-2.5 text-sm text-red-500">Download failed: {downloadError.message}</p>
+      )}
 
       {status === 'completed' && (
-        <div className="mt-3.5">
-          <a
-            href={getDownloadUrl(job.fileId)}
-            download
-            className="inline-block rounded-md bg-green-600 px-4 py-1.5 text-xs font-semibold text-white no-underline"
+        <div className="mt-3.5 flex gap-2">
+          <button
+            onClick={() =>
+              download({ fileId: job.fileId, fileName: `job-${job.id.slice(0, 8)}-result` })
+            }
+            disabled={isDownloading}
+            className={`rounded-md bg-green-600 px-4 py-1.5 text-xs font-semibold text-white ${isDownloading ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}
           >
-            Download result
-          </a>
+            {isDownloading ? 'Downloading...' : 'Download result'}
+          </button>
+          {downloadError && (
+            <button
+              onClick={() =>
+                download({ fileId: job.fileId, fileName: `job-${job.id.slice(0, 8)}-result` })
+              }
+              disabled={isDownloading}
+              className="text-xs font-semibold text-green-600 hover:underline"
+            >
+              Retry
+            </button>
+          )}
         </div>
       )}
     </div>
