@@ -13,18 +13,18 @@ const STATUS_LABEL: Record<Job['status'], string> = {
   failed: 'Failed',
 };
 
-const STATUS_COLOR: Record<Job['status'], string> = {
-  pending: '#718096',
-  active: '#3182ce',
-  completed: '#38a169',
-  failed: '#e53e3e',
+const STATUS_TEXT: Record<Job['status'], string> = {
+  pending: 'text-gray-500',
+  active: 'text-blue-600',
+  completed: 'text-green-600',
+  failed: 'text-red-500',
 };
 
-const BAR_COLOR: Record<Job['status'], string> = {
-  pending: '#a0aec0',
-  active: '#3182ce',
-  completed: '#38a169',
-  failed: '#e53e3e',
+const BAR_BG: Record<Job['status'], string> = {
+  pending: 'bg-gray-400',
+  active: 'bg-blue-500',
+  completed: 'bg-green-500',
+  failed: 'bg-red-500',
 };
 
 export default function JobProgressPanel({ job }: JobProgressPanelProps) {
@@ -34,89 +34,35 @@ export default function JobProgressPanel({ job }: JobProgressPanelProps) {
   });
 
   return (
-    <div
-      style={{
-        marginTop: 24,
-        padding: '16px 20px',
-        border: '1px solid #e2e8f0',
-        borderRadius: 8,
-        background: '#f7fafc',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 12,
-        }}
-      >
-        <span style={{ fontWeight: 600, fontSize: 14 }}>Processing job</span>
-        <span
-          style={{
-            fontSize: 11,
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-            color: STATUS_COLOR[status],
-          }}
-        >
+    <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 px-5 py-4">
+      <div className="mb-3 flex items-center justify-between">
+        <span className="text-sm font-semibold">Processing job</span>
+        <span className={`text-[11px] font-bold uppercase tracking-wider ${STATUS_TEXT[status]}`}>
           {STATUS_LABEL[status]}
         </span>
       </div>
 
       {/* Progress bar track */}
-      <div
-        style={{
-          height: 8,
-          background: '#e2e8f0',
-          borderRadius: 4,
-          overflow: 'hidden',
-        }}
-      >
+      <div className="h-2 overflow-hidden rounded-full bg-gray-200">
         <div
-          style={{
-            height: '100%',
-            width: `${progress}%`,
-            background: BAR_COLOR[status],
-            borderRadius: 4,
-            transition: 'width 0.35s ease',
-          }}
+          className={`h-full rounded-full transition-all duration-300 ease-in-out ${BAR_BG[status]}`}
+          style={{ width: `${progress}%` }}
         />
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginTop: 6,
-          fontSize: 12,
-          color: '#718096',
-        }}
-      >
+      <div className="mt-1.5 flex justify-between text-xs text-gray-500">
         <span>{progress}%</span>
-        <span style={{ fontFamily: 'monospace', fontSize: 11 }}>job {job.id.slice(0, 8)}…</span>
+        <span className="font-mono text-[11px]">job {job.id.slice(0, 8)}…</span>
       </div>
 
-      {error && (
-        <p style={{ color: '#e53e3e', fontSize: 13, marginTop: 10, marginBottom: 0 }}>{error}</p>
-      )}
+      {error && <p className="mb-0 mt-2.5 text-sm text-red-500">{error}</p>}
 
       {status === 'completed' && (
-        <div style={{ marginTop: 14 }}>
+        <div className="mt-3.5">
           <a
             href={getDownloadUrl(job.fileId)}
             download
-            style={{
-              display: 'inline-block',
-              padding: '6px 16px',
-              background: '#38a169',
-              color: '#fff',
-              borderRadius: 6,
-              fontSize: 13,
-              fontWeight: 600,
-              textDecoration: 'none',
-            }}
+            className="inline-block rounded-md bg-green-600 px-4 py-1.5 text-xs font-semibold text-white no-underline"
           >
             Download result
           </a>

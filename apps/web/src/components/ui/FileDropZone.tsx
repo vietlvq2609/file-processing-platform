@@ -43,17 +43,9 @@ export default function FileDropZone({
       }}
       onDragLeave={() => setIsDragging(false)}
       onDrop={onDrop}
-      style={{
-        border: `2px dashed ${isDragging ? '#4299e1' : '#cbd5e0'}`,
-        borderRadius: 8,
-        padding: '32px 16px',
-        textAlign: 'center',
-        cursor: isPending ? 'wait' : 'pointer',
-        marginBottom: 24,
-        background: isDragging ? '#ebf8ff' : '#f7fafc',
-        transition: 'border-color 0.15s, background 0.15s',
-        userSelect: 'none',
-      }}
+      className={`mb-6 select-none rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors duration-150 ${
+        isPending ? 'cursor-wait' : 'cursor-pointer'
+      } ${isDragging ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-gray-50'}`}
     >
       <input
         ref={inputRef}
@@ -64,11 +56,11 @@ export default function FileDropZone({
         onChange={onChange}
       />
       {isPending ? (
-        <p style={{ margin: 0, color: '#718096' }}>Uploading…</p>
+        <p className="m-0 text-gray-500">Uploading…</p>
       ) : (
-        <p style={{ margin: 0, color: '#718096' }}>
+        <p className="m-0 text-gray-500">
           Drag &amp; drop files here, or{' '}
-          <span style={{ color: '#4299e1', fontWeight: 600 }}>{label}</span>
+          <span className="font-semibold text-blue-500">{label}</span>
         </p>
       )}
     </div>

@@ -15,13 +15,13 @@ export default function RouteErrorPage() {
   const message = resolveMessage(error);
 
   return (
-    <main style={{ maxWidth: 480, margin: '80px auto', padding: '0 16px', textAlign: 'center' }}>
-      <p style={{ fontSize: 48, margin: '0 0 16px' }}>⚠️</p>
-      <h1 style={{ fontSize: 20, marginBottom: 8 }}>Something went wrong</h1>
-      <p style={{ color: '#718096', marginBottom: 32 }}>{message}</p>
+    <main className="mx-auto mt-20 max-w-md px-4 text-center">
+      <p className="mb-4 text-5xl">⚠️</p>
+      <h1 className="mb-2 text-xl font-semibold">Something went wrong</h1>
+      <p className="mb-8 text-gray-500">{message}</p>
       <button
         onClick={() => navigate('/dashboard')}
-        style={{ color: '#4299e1', background: 'none', border: 'none', cursor: 'pointer' }}
+        className="cursor-pointer border-none bg-transparent text-blue-500"
       >
         ← Back to dashboard
       </button>

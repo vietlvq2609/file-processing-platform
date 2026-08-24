@@ -11,31 +11,24 @@ export default function FileDetailPage() {
 
   if (isLoading)
     return (
-      <main style={{ maxWidth: 800, margin: '40px auto', padding: '0 16px' }}>
-        <p style={{ color: '#718096' }}>Loading…</p>
+      <main className="mx-auto mt-10 max-w-3xl px-4">
+        <p className="text-gray-500">Loading…</p>
       </main>
     );
 
   if (isError || !file)
     return (
-      <main style={{ maxWidth: 800, margin: '40px auto', padding: '0 16px' }}>
-        <p style={{ color: '#e53e3e' }}>File not found.</p>
+      <main className="mx-auto mt-10 max-w-3xl px-4">
+        <p className="text-red-500">File not found.</p>
         <button onClick={() => navigate('/dashboard')}>← Back to files</button>
       </main>
     );
 
   return (
-    <main style={{ maxWidth: 800, margin: '40px auto', padding: '0 16px' }}>
+    <main className="mx-auto mt-10 max-w-3xl px-4">
       <button
         onClick={() => navigate('/dashboard')}
-        style={{
-          marginBottom: 24,
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: '#4299e1',
-          padding: 0,
-        }}
+        className="mb-6 cursor-pointer border-none bg-transparent p-0 text-blue-500"
       >
         ← Back to files
       </button>

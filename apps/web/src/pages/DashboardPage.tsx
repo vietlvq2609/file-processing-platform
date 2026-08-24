@@ -3,8 +3,8 @@ import FileUploadZone from '../features/files/components/FileUploadZone';
 
 export default function DashboardPage() {
   return (
-    <main style={{ maxWidth: 800, margin: '40px auto', padding: '0 16px' }}>
-      <h1 style={{ marginTop: 0 }}>Files</h1>
+    <main className="mx-auto mt-10 max-w-3xl px-4">
+      <h1 className="mt-0">Files</h1>
       <FileUploadZone />
       <FileList />
     </main>

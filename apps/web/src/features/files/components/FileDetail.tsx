@@ -29,9 +29,9 @@ export default function FileDetail({ file }: FileDetailProps) {
 
   return (
     <div>
-      <h2 style={{ marginTop: 0 }}>{file.originalName}</h2>
+      <h2 className="mt-0">{file.originalName}</h2>
 
-      <table style={{ borderCollapse: 'collapse', fontSize: 14 }}>
+      <table className="border-collapse text-sm">
         <tbody>
           {(
             [
@@ -44,29 +44,14 @@ export default function FileDetail({ file }: FileDetailProps) {
             ] as [string, string][]
           ).map(([label, value]) => (
             <tr key={label}>
-              <td
-                style={{
-                  color: '#718096',
-                  paddingRight: 24,
-                  paddingBottom: 8,
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {label}
-              </td>
-              <td
-                style={{ paddingBottom: 8, fontFamily: label === 'ID' ? 'monospace' : undefined }}
-              >
-                {value}
-              </td>
+              <td className="whitespace-nowrap pb-2 pr-6 text-gray-500">{label}</td>
+              <td className={`pb-2 ${label === 'ID' ? 'font-mono' : ''}`}>{value}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <div
-        style={{ marginTop: 24, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}
-      >
+      <div className="mt-6 flex flex-wrap items-center gap-3">
         <a href={getDownloadUrl(file.id)} download={file.originalName}>
           <button>Download original</button>
         </a>
@@ -74,16 +59,7 @@ export default function FileDetail({ file }: FileDetailProps) {
           <button
             onClick={handleProcess}
             disabled={isSubmitting}
-            style={{
-              padding: '6px 14px',
-              fontSize: 13,
-              background: '#3182ce',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 6,
-              cursor: isSubmitting ? 'wait' : 'pointer',
-              fontWeight: 600,
-            }}
+            className={`rounded-md border-none bg-blue-600 px-3.5 py-1.5 text-xs font-semibold text-white ${isSubmitting ? 'cursor-wait' : 'cursor-pointer'}`}
           >
             {isSubmitting ? 'Submitting…' : 'Process file'}
           </button>
@@ -91,7 +67,7 @@ export default function FileDetail({ file }: FileDetailProps) {
         <button
           onClick={handleDelete}
           disabled={isDeleting}
-          style={{ color: '#e53e3e', cursor: isDeleting ? 'wait' : 'pointer' }}
+          className={`text-red-500 ${isDeleting ? 'cursor-wait' : 'cursor-pointer'}`}
         >
           {isDeleting ? 'Deleting…' : 'Delete file'}
         </button>

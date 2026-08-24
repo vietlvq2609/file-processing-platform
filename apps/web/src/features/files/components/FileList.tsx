@@ -25,23 +25,14 @@ export default function FileList() {
           setSearch(e.target.value);
           setPage(1);
         }}
-        style={{
-          display: 'block',
-          width: '100%',
-          boxSizing: 'border-box',
-          marginBottom: 16,
-          padding: '8px 12px',
-          border: '1px solid #e2e8f0',
-          borderRadius: 6,
-          fontSize: 14,
-        }}
+        className="mb-4 block w-full rounded-md border border-gray-200 px-3 py-2 text-sm"
       />
 
-      {isLoading && <p style={{ color: '#718096' }}>Loading…</p>}
-      {isError && <p style={{ color: '#e53e3e' }}>Failed to load files.</p>}
+      {isLoading && <p className="text-gray-500">Loading…</p>}
+      {isError && <p className="text-red-500">Failed to load files.</p>}
 
       {data?.data.length === 0 && !isLoading && (
-        <p style={{ color: '#718096', textAlign: 'center', padding: 32 }}>No files yet.</p>
+        <p className="px-0 py-8 text-center text-gray-500">No files yet.</p>
       )}
 
       {data?.data.map((file) => (
@@ -49,11 +40,11 @@ export default function FileList() {
       ))}
 
       {data && data.meta.totalPages > 1 && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
+        <div className="mt-4 flex items-center gap-3">
           <button onClick={() => setPage((p) => p - 1)} disabled={page <= 1}>
             Previous
           </button>
-          <span style={{ fontSize: 13, color: '#718096' }}>
+          <span className="text-xs text-gray-500">
             Page {page} of {data.meta.totalPages} &middot; {data.meta.total} files
           </span>
           <button onClick={() => setPage((p) => p + 1)} disabled={page >= data.meta.totalPages}>

@@ -29,44 +29,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#f7fafc',
-      }}
-    >
-      <div
-        style={{
-          width: '100%',
-          maxWidth: 400,
-          background: '#fff',
-          borderRadius: 8,
-          boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-          padding: '40px 32px',
-        }}
-      >
-        <h1 style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 700, color: '#1a202c' }}>
-          File Processing Platform
-        </h1>
-        <p style={{ margin: '0 0 28px', fontSize: 14, color: '#718096' }}>
-          Sign in to your account
-        </p>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="w-full max-w-sm rounded-lg bg-white px-8 py-10 shadow-sm">
+        <h1 className="mb-2 text-xl font-bold text-gray-900">File Processing Platform</h1>
+        <p className="mb-7 text-sm text-gray-500">Sign in to your account</p>
 
         <form onSubmit={handleSubmit} noValidate>
-          <div style={{ marginBottom: 16 }}>
-            <label
-              htmlFor="email"
-              style={{
-                display: 'block',
-                marginBottom: 6,
-                fontSize: 13,
-                fontWeight: 500,
-                color: '#4a5568',
-              }}
-            >
+          <div className="mb-4">
+            <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-gray-700">
               Email
             </label>
             <input
@@ -77,30 +47,12 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="test@example.com"
-              style={{
-                display: 'block',
-                width: '100%',
-                boxSizing: 'border-box',
-                padding: '9px 12px',
-                border: '1px solid #e2e8f0',
-                borderRadius: 6,
-                fontSize: 14,
-                outline: 'none',
-              }}
+              className="block w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm outline-none"
             />
           </div>
 
-          <div style={{ marginBottom: 24 }}>
-            <label
-              htmlFor="password"
-              style={{
-                display: 'block',
-                marginBottom: 6,
-                fontSize: 13,
-                fontWeight: 500,
-                color: '#4a5568',
-              }}
-            >
+          <div className="mb-6">
+            <label htmlFor="password" className="mb-1.5 block text-xs font-medium text-gray-700">
               Password
             </label>
             <input
@@ -111,31 +63,12 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              style={{
-                display: 'block',
-                width: '100%',
-                boxSizing: 'border-box',
-                padding: '9px 12px',
-                border: '1px solid #e2e8f0',
-                borderRadius: 6,
-                fontSize: 14,
-                outline: 'none',
-              }}
+              className="block w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm outline-none"
             />
           </div>
 
           {error && (
-            <p
-              style={{
-                margin: '0 0 16px',
-                padding: '10px 12px',
-                background: '#fff5f5',
-                border: '1px solid #fed7d7',
-                borderRadius: 6,
-                color: '#c53030',
-                fontSize: 13,
-              }}
-            >
+            <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-700">
               {error}
             </p>
           )}
@@ -143,25 +76,17 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            style={{
-              display: 'block',
-              width: '100%',
-              padding: '10px 16px',
-              background: isLoading ? '#a0aec0' : '#4299e1',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 6,
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              transition: 'background 0.15s',
-            }}
+            className={`block w-full rounded-md border-none px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 ${
+              isLoading
+                ? 'cursor-not-allowed bg-gray-400'
+                : 'cursor-pointer bg-blue-500 hover:bg-blue-600'
+            }`}
           >
             {isLoading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
 
-        <p style={{ marginTop: 24, fontSize: 12, color: '#a0aec0', textAlign: 'center' }}>
+        <p className="mt-6 text-center text-xs text-gray-400">
           Dev credentials: test@example.com / password123
         </p>
       </div>
