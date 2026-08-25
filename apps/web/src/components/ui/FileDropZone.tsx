@@ -1,5 +1,7 @@
 import { type ChangeEvent, type DragEvent, useRef, useState } from 'react';
 
+import { Spinner } from './Spinner';
+
 interface FileDropZoneProps {
   onFiles: (files: File[]) => void;
   isPending?: boolean;
@@ -8,7 +10,7 @@ interface FileDropZoneProps {
   label?: string;
 }
 
-export default function FileDropZone({
+export function FileDropZone({
   onFiles,
   isPending = false,
   accept,
@@ -45,7 +47,7 @@ export default function FileDropZone({
       onDrop={onDrop}
       className={`mb-6 select-none rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors duration-150 ${
         isPending ? 'cursor-wait' : 'cursor-pointer'
-      } ${isDragging ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-gray-50'}`}
+      } ${isDragging ? 'border-brand bg-brand-light' : 'border-border bg-gray-50'}`}
     >
       <input
         ref={inputRef}
@@ -56,11 +58,13 @@ export default function FileDropZone({
         onChange={onChange}
       />
       {isPending ? (
-        <p className="m-0 text-gray-500">Uploading…</p>
+        <div className="flex items-center justify-center gap-2 text-gray-500">
+          <Spinner size="sm" />
+          <p className="m-0 text-sm">Uploading…</p>
+        </div>
       ) : (
-        <p className="m-0 text-gray-500">
-          Drag &amp; drop files here, or{' '}
-          <span className="font-semibold text-blue-500">{label}</span>
+        <p className="m-0 text-sm text-gray-500">
+          Drag &amp; drop files here, or <span className="font-semibold text-brand">{label}</span>
         </p>
       )}
     </div>
