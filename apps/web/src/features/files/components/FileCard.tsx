@@ -17,7 +17,7 @@ export default function FileCard({ file }: FileCardProps) {
   return (
     <div className="mb-2 flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-4 py-3">
       <div className="min-w-0">
-        <Link to={`/files/${file.id}`} className="font-semibold text-inherit no-underline">
+        <Link to={`/app/files/${file.id}`} className="font-semibold text-inherit no-underline">
           {file.originalName}
         </Link>
         <div className="mt-0.5 text-xs text-gray-500">

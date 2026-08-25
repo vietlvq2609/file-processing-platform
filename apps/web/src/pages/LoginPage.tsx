@@ -20,7 +20,7 @@ export default function LoginPage() {
     try {
       const { data: user, accessToken } = await login(email, password);
       setAuth(accessToken, user);
-      navigate('/dashboard', { replace: true });
+      navigate('/app/dashboard', { replace: true });
     } catch {
       setError('Invalid email or password. Please try again.');
     } finally {

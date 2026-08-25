@@ -20,14 +20,14 @@ export default function FileDetailPage() {
     return (
       <main className="mx-auto mt-10 max-w-3xl px-4">
         <p className="text-red-500">File not found.</p>
-        <button onClick={() => navigate('/dashboard')}>← Back to files</button>
+        <button onClick={() => navigate('/app/files')}>← Back to files</button>
       </main>
     );
 
   return (
     <main className="mx-auto mt-10 max-w-3xl px-4">
       <button
-        onClick={() => navigate('/dashboard')}
+        onClick={() => navigate('/app/files')}
         className="mb-6 cursor-pointer border-none bg-transparent p-0 text-blue-500"
       >
         ← Back to files

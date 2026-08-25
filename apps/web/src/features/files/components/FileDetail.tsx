@@ -21,7 +21,7 @@ export default function FileDetail({ file }: FileDetailProps) {
   const [activeJob, setActiveJob] = useState<Job | null>(null);
 
   function handleDelete() {
-    remove(file.id, { onSuccess: () => navigate('/dashboard') });
+    remove(file.id, { onSuccess: () => navigate('/app/files') });
   }
 
   function handleProcess() {

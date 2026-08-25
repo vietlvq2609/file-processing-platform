@@ -1,61 +1,85 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { NavLink, Outlet } from 'react-router-dom';
 
-import { logout } from '../../api/auth';
-import { useAuthStore } from '../../stores/authStore';
+import { NavJobsBadge } from './NavJobsBadge';
+import { UserMenu } from './UserMenu';
 
-const NAV_LINKS = [
-  { to: '/dashboard', label: 'Files' },
-  { to: '/converter', label: 'Converter' },
-  { to: '/compressor', label: 'Compressor' },
-  { to: '/tools', label: 'Tools' },
+const TOOL_LINKS = [
+  { to: '/app/convert', label: 'Convert' },
+  { to: '/app/compress', label: 'Compress' },
+  { to: '/app/tools', label: 'Tools' },
 ];
 
-export default function AppLayout() {
-  const navigate = useNavigate();
-  const user = useAuthStore((s) => s.user);
-  const clearAuth = useAuthStore((s) => s.clearAuth);
+const BASE_LINK_CLASS =
+  'rounded-md px-3 py-1.5 text-sm no-underline transition-colors font-normal text-gray-600 hover:bg-gray-100';
+const ACTIVE_LINK_CLASS =
+  'rounded-md px-3 py-1.5 text-sm no-underline transition-colors font-semibold';
+const ACTIVE_STYLE = { color: 'var(--color-brand)', backgroundColor: 'var(--color-brand-light)' };
 
-  async function handleLogout() {
-    try {
-      await logout();
-    } catch {
-      // Proceed even if the server call fails.
-    }
-    clearAuth();
-    navigate('/login', { replace: true });
-  }
+function navClass({ isActive }: { isActive: boolean }) {
+  return isActive ? ACTIVE_LINK_CLASS : BASE_LINK_CLASS;
+}
+
+function navStyle({ isActive }: { isActive: boolean }) {
+  return isActive ? ACTIVE_STYLE : {};
+}
+
+export function AppLayout() {
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col">
-      <nav className="sticky top-0 z-10 flex h-[52px] items-center justify-between border-b border-gray-200 bg-white px-6">
-        <div className="flex items-center gap-1">
-          <span className="mr-6 text-sm font-bold text-gray-800">FileProc</span>
-          {NAV_LINKS.map(({ to, label }) => (
+      <nav className="sticky top-0 z-10 border-b border-gray-200 bg-white">
+        <div className="flex h-[52px] items-center justify-between px-6">
+          {/* Left cluster: brand + tool links */}
+          <div className="flex items-center gap-1">
             <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                `rounded-md px-3 py-1.5 text-sm no-underline transition-colors ${
-                  isActive
-                    ? 'bg-blue-50 font-semibold text-blue-600'
-                    : 'font-normal text-gray-600 hover:bg-gray-100'
-                }`
-              }
+              to="/app/dashboard"
+              className="mr-4 text-sm font-bold text-gray-800 no-underline"
             >
-              {label}
+              FileProc
             </NavLink>
-          ))}
+            <div className="hidden items-center gap-1 md:flex">
+              {TOOL_LINKS.map(({ to, label }) => (
+                <NavLink key={to} to={to} className={navClass} style={navStyle}>
+                  {label}
+                </NavLink>
+              ))}
+            </div>
+          </div>
+
+          {/* Right cluster: jobs badge + user menu + mobile hamburger */}
+          <div className="flex items-center gap-3">
+            <NavJobsBadge />
+            <UserMenu />
+            <button
+              className="cursor-pointer border-none bg-transparent p-1 text-lg text-gray-600 md:hidden"
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-label="Toggle navigation"
+            >
+              {menuOpen ? '✕' : '☰'}
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          {user && <span className="text-xs text-gray-500">{user.email}</span>}
-          <button
-            onClick={handleLogout}
-            className="cursor-pointer rounded-md border border-gray-200 bg-white px-3.5 py-1.5 text-xs text-gray-600 hover:bg-gray-50"
-          >
-            Sign out
-          </button>
-        </div>
+        {/* Mobile expanded menu */}
+        {menuOpen && (
+          <div className="border-t border-gray-100 px-6 py-3 md:hidden">
+            <div className="flex flex-col gap-1">
+              {TOOL_LINKS.map(({ to, label }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={navClass}
+                  style={navStyle}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {label}
+                </NavLink>
+              ))}
+            </div>
+          </div>
+        )}
       </nav>
 
       <div className="flex-1">
