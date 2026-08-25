@@ -7,6 +7,7 @@ export interface JobWsState {
   progress: number;
   status: JobStatus;
   error: string | null;
+  outputFileId: string | null;
 }
 
 /**
@@ -23,6 +24,7 @@ export function useJobWebSocket(
     progress: initial.progress,
     status: initial.status,
     error: null,
+    outputFileId: null,
   });
 
   // Keep a stable ref so the cleanup function always has access to the socket.
@@ -50,6 +52,7 @@ export function useJobWebSocket(
         progress?: number;
         status?: JobStatus;
         error?: string;
+        outputFileId?: string;
       };
       try {
         msg = JSON.parse(event.data) as typeof msg;
@@ -60,9 +63,19 @@ export function useJobWebSocket(
       if (msg.jobId !== jobId) return;
 
       if (msg.type === 'job:progress') {
-        setState({ progress: msg.progress ?? 0, status: msg.status ?? 'active', error: null });
+        setState({
+          progress: msg.progress ?? 0,
+          status: msg.status ?? 'active',
+          error: null,
+          outputFileId: null,
+        });
       } else if (msg.type === 'job:completed') {
-        setState({ progress: 100, status: 'completed', error: null });
+        setState({
+          progress: 100,
+          status: 'completed',
+          error: null,
+          outputFileId: msg.outputFileId ?? null,
+        });
       } else if (msg.type === 'job:failed') {
         setState((prev) => ({
           ...prev,
