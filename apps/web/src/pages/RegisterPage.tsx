@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 
 import { AuthLayout } from '../features/auth/components/AuthLayout';
 import { AuthTabStrip } from '../features/auth/components/AuthTabStrip';
-import { LoginForm } from '../features/auth/components/LoginForm';
+import { RegisterForm } from '../features/auth/components/RegisterForm';
 import { useAuthStore } from '../stores/authStore';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const navigate = useNavigate();
   const accessToken = useAuthStore((s) => s.accessToken);
 
@@ -19,7 +19,7 @@ export default function LoginPage() {
   return (
     <AuthLayout>
       <AuthTabStrip />
-      <LoginForm />
+      <RegisterForm />
     </AuthLayout>
   );
 }

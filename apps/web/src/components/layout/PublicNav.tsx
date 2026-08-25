@@ -27,7 +27,7 @@ export function PublicNav() {
                   Login
                 </Button>
               </Link>
-              <Link to="/login?mode=register">
+              <Link to="/register">
                 <Button variant="primary" size="sm">
                   Sign up
                 </Button>

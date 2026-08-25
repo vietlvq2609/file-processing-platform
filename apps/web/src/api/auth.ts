@@ -11,6 +11,11 @@ export async function login(email: string, password: string): Promise<AuthRespon
   return data;
 }
 
+export async function register(email: string, password: string): Promise<AuthResponse> {
+  const { data } = await apiClient.post<AuthResponse>('/auth/register', { email, password });
+  return data;
+}
+
 export async function logout(): Promise<void> {
   await apiClient.post('/auth/logout');
 }

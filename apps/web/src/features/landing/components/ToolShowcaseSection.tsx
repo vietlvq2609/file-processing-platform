@@ -23,7 +23,7 @@ export function ToolShowcaseSection() {
               </span>
               <h3 className="mb-1 text-sm font-semibold text-gray-900">{name}</h3>
               <p className="mb-4 flex-1 text-xs text-gray-500">{description}</p>
-              <Link to="/login?mode=register">
+              <Link to="/register">
                 <Button variant="secondary" size="sm">
                   Try it →
                 </Button>

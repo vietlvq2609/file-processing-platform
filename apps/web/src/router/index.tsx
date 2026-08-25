@@ -11,6 +11,7 @@ import FilesPage from '../pages/FilesPage';
 import JobsPage from '../pages/JobsPage';
 import LandingPage from '../pages/LandingPage';
 import LoginPage from '../pages/LoginPage';
+import RegisterPage from '../pages/RegisterPage';
 import SettingsPage from '../pages/SettingsPage';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
         children: [{ index: true, element: <LandingPage /> }],
       },
       { path: 'login', element: <LoginPage /> },
+      { path: 'register', element: <RegisterPage /> },
       // Legacy redirects for old paths
       { path: 'dashboard', element: <Navigate to="/app/dashboard" replace /> },
       { path: 'converter', element: <Navigate to="/app/convert" replace /> },

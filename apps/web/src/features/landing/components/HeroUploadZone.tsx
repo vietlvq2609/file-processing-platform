@@ -22,7 +22,7 @@ export function HeroUploadZone({ activeTab }: HeroUploadZoneProps) {
         <p className="text-sm text-gray-500">
           No sign-up required — create a free account to get started.
         </p>
-        <Link to="/login?mode=register">
+        <Link to="/register">
           <Button variant="primary" size="lg">
             Sign up free to process files →
           </Button>

@@ -11,7 +11,7 @@ export function SignupCtaSection() {
           Create a free account and track every file you&apos;ve processed.
         </p>
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link to="/login?mode=register">
+          <Link to="/register">
             <Button variant="primary" size="lg">
               Create free account
             </Button>
