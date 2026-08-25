@@ -1,6 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
-import { AppLayout } from '../components/layout';
+import { AppLayout, PublicLayout } from '../components/layout';
 import RouteErrorPage from '../components/RouteErrorPage';
 import CompressorPage from '../features/compressor/pages/CompressorPage';
 import ConverterPage from '../features/converter/pages/ConverterPage';
@@ -9,6 +9,7 @@ import DashboardPage from '../pages/DashboardPage';
 import FileDetailPage from '../pages/FileDetailPage';
 import FilesPage from '../pages/FilesPage';
 import JobsPage from '../pages/JobsPage';
+import LandingPage from '../pages/LandingPage';
 import LoginPage from '../pages/LoginPage';
 import SettingsPage from '../pages/SettingsPage';
 import ProtectedRoute from './ProtectedRoute';
@@ -18,7 +19,10 @@ export const router = createBrowserRouter([
     path: '/',
     errorElement: <RouteErrorPage />,
     children: [
-      { index: true, element: <Navigate to="/app/dashboard" replace /> },
+      {
+        element: <PublicLayout />,
+        children: [{ index: true, element: <LandingPage /> }],
+      },
       { path: 'login', element: <LoginPage /> },
       // Legacy redirects for old paths
       { path: 'dashboard', element: <Navigate to="/app/dashboard" replace /> },

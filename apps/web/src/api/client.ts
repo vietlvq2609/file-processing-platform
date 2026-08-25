@@ -40,8 +40,8 @@ apiClient.interceptors.response.use(
         (original.headers as Record<string, string>).Authorization = `Bearer ${newToken}`;
         return apiClient(original);
       } catch {
+        // clearAuth sets accessToken to null; ProtectedRoute reactively redirects to /login.
         useAuthStore.getState().clearAuth();
-        window.location.href = '/login';
       }
     }
     return Promise.reject(error);
