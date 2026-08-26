@@ -39,3 +39,9 @@ export interface RefreshResponse {
 export interface MeResponse {
   data: User;
 }
+// ─── PUT /auth/password ──────────────────────────────────────────────────
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}

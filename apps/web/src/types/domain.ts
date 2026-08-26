@@ -1,6 +1,14 @@
 export type FileStatus = 'pending' | 'ready' | 'deleted';
 export type JobStatus = 'pending' | 'active' | 'completed' | 'failed';
 
+export interface ApiKey {
+  id: string;
+  userId: string;
+  keyPrefix: string;
+  lastFour: string;
+  createdAt: string;
+}
+
 export interface File {
   id: string;
   userId: string;

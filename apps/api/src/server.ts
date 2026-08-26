@@ -4,16 +4,18 @@ import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import websocket from '@fastify/websocket';
-import { createDb, FileRepository, JobRepository, UserRepository } from '@fpp/db';
+import { ApiKeyRepository, createDb, FileRepository, JobRepository, UserRepository } from '@fpp/db';
 import Fastify from 'fastify';
 
 import { config } from './config.js';
 import { registerErrorHandler } from './middleware/errorHandler.js';
 import { createJobQueue } from './queue/jobQueue.js';
+import { apiKeyRoutes } from './routes/apiKeys/index.js';
 import { authRoutes } from './routes/auth/index.js';
 import { fileRoutes } from './routes/files/index.js';
 import { jobRoutes } from './routes/jobs/index.js';
 import { wsRoutes } from './routes/ws/index.js';
+import { ApiKeyService } from './services/ApiKeyService.js';
 import { AuthService } from './services/AuthService.js';
 import { FileService } from './services/FileService.js';
 import { JobService } from './services/JobService.js';
@@ -60,6 +62,9 @@ export function buildApp() {
     bcryptRounds: config.auth.bcryptRounds,
   });
 
+  const apiKeyRepository = new ApiKeyRepository(db);
+  const apiKeyService = new ApiKeyService(apiKeyRepository);
+
   const fileRepository = new FileRepository(db);
   const fileService = new FileService(fileRepository, minioClient);
 
@@ -70,6 +75,7 @@ export function buildApp() {
   app.get('/healthz', () => ({ status: 'ok' }));
 
   app.register(authRoutes(authService), { prefix: '/api/auth' });
+  app.register(apiKeyRoutes(apiKeyService), { prefix: '/api/api-keys' });
   app.register(fileRoutes(fileService), { prefix: '/api/files' });
   app.register(jobRoutes(jobService), { prefix: '/api/jobs' });
   app.register(wsRoutes(wsManager, config.jwt.accessSecret), { prefix: '/ws' });

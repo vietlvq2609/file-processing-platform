@@ -27,6 +27,18 @@ export interface User {
 }
 
 /**
+ * Public representation of an API key.
+ * The full key is returned only once on creation; only the masked suffix is stored.
+ */
+export interface ApiKey {
+  id: string;
+  userId: string;
+  keyPrefix: string;
+  lastFour: string;
+  createdAt: string;
+}
+
+/**
  * Public representation of an uploaded file.
  * The internal storagePath is intentionally excluded from this type —
  * it is an implementation detail that must never be sent to clients.

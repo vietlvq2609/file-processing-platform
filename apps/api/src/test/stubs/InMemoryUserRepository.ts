@@ -34,4 +34,12 @@ export class InMemoryUserRepository implements IUserRepository {
     }
     return Promise.resolve();
   }
+
+  updatePassword(userId: string, passwordHash: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      this.users.set(userId, { ...user, passwordHash, updatedAt: new Date() });
+    }
+    return Promise.resolve();
+  }
 }

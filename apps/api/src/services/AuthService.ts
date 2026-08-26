@@ -4,7 +4,7 @@ import type { IUserRepository } from '@fpp/db';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-import { conflict, notFound, unauthorized } from '../utils/errors.js';
+import { badRequest, conflict, notFound, unauthorized } from '../utils/errors.js';
 
 /** Public-safe user shape — password and refresh token hash are never included. */
 export interface PublicUser {
@@ -135,5 +135,24 @@ export class AuthService {
       throw notFound('USER_NOT_FOUND', 'User not found');
     }
     return toPublicUser(user);
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<void> {
+    const user = await this.repo.findById(userId);
+    if (!user) {
+      throw notFound('USER_NOT_FOUND', 'User not found');
+    }
+
+    const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!valid) {
+      throw badRequest('INVALID_CURRENT_PASSWORD', 'Current password is incorrect');
+    }
+
+    const newHash = await bcrypt.hash(newPassword, this.cfg.bcryptRounds);
+    await this.repo.updatePassword(userId, newHash);
   }
 }

@@ -1,5 +1,7 @@
 export type { DrizzleClient } from './client.js';
 export { createDb, ping } from './client.js';
+export type { IApiKeyRepository } from './repositories/ApiKeyRepository.js';
+export { ApiKeyRepository } from './repositories/ApiKeyRepository.js';
 export type { IFileRepository, ListOptions } from './repositories/FileRepository.js';
 export { FileRepository } from './repositories/FileRepository.js';
 export type { IJobRepository, ListJobOptions } from './repositories/JobRepository.js';

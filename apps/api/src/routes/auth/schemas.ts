@@ -29,3 +29,17 @@ export const registerSchema: FastifySchema = {
 export const loginSchema: FastifySchema = {
   body: loginBodySchema,
 };
+
+export const changePasswordBodySchema = {
+  type: 'object',
+  required: ['currentPassword', 'newPassword'],
+  additionalProperties: false,
+  properties: {
+    currentPassword: { type: 'string', minLength: 1 },
+    newPassword: { type: 'string', minLength: 8, maxLength: 128 },
+  },
+} as const;
+
+export const changePasswordSchema: FastifySchema = {
+  body: changePasswordBodySchema,
+};

@@ -1,12 +1,13 @@
 interface ProgressBarProps {
   value: number;
-  variant?: 'default' | 'success' | 'danger';
+  variant?: 'default' | 'success' | 'warning' | 'danger';
   animated?: boolean;
 }
 
 const variantClasses: Record<NonNullable<ProgressBarProps['variant']>, string> = {
   default: 'bg-brand',
   success: 'bg-success',
+  warning: 'bg-warning',
   danger: 'bg-danger',
 };
 

@@ -9,6 +9,7 @@ export interface IUserRepository {
   findById(id: string): Promise<User | null>;
   create(data: { email: string; passwordHash: string }): Promise<User>;
   setRefreshTokenHash(userId: string, hash: string | null): Promise<void>;
+  updatePassword(userId: string, passwordHash: string): Promise<void>;
 }
 
 export class UserRepository implements IUserRepository {
@@ -33,6 +34,13 @@ export class UserRepository implements IUserRepository {
     await this.db
       .update(users)
       .set({ refreshTokenHash: hash, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  async updatePassword(userId: string, passwordHash: string): Promise<void> {
+    await this.db
+      .update(users)
+      .set({ passwordHash, updatedAt: new Date() })
       .where(eq(users.id, userId));
   }
 }

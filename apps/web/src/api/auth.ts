@@ -29,3 +29,7 @@ export async function getMe(): Promise<PublicUser> {
   const { data } = await apiClient.get<{ data: PublicUser }>('/auth/me');
   return data.data;
 }
+
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  await apiClient.put('/auth/password', { currentPassword, newPassword });
+}

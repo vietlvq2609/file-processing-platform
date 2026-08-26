@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import { config } from '../../config.js';
 import { authenticate } from '../../plugins/authenticate.js';
 import type { AuthService } from '../../services/AuthService.js';
-import { loginSchema, registerSchema } from './schemas.js';
+import { changePasswordSchema, loginSchema, registerSchema } from './schemas.js';
 
 const REFRESH_COOKIE = 'refreshToken';
 
@@ -72,5 +72,17 @@ export function authRoutes(service: AuthService) {
       const user = await service.me(request.userId);
       return reply.send({ data: user });
     });
+
+    // ─── PUT /auth/password ──────────────────────────────────────────────────
+    // Changes the authenticated user's password. Requires a valid access token.
+    app.put<{ Body: { currentPassword: string; newPassword: string } }>(
+      '/password',
+      { schema: changePasswordSchema, preHandler: [authenticate] },
+      async (request, reply) => {
+        const { currentPassword, newPassword } = request.body;
+        await service.changePassword(request.userId, currentPassword, newPassword);
+        return reply.status(204).send();
+      }
+    );
   };
 }
