@@ -73,7 +73,7 @@ pnpm dev
 Individual processes:
 
 ```bash
-pnpm dev:api      # Fastify API server on :3000 (tsx watch)
+pnpm dev:api      # Fastify API server on :3001 (tsx watch)
 pnpm dev:web      # Vite dev server on :5173
 pnpm dev:worker   # BullMQ worker (tsx watch)
 ```
@@ -85,7 +85,7 @@ pnpm dev:worker   # BullMQ worker (tsx watch)
 | Service | URL | Notes |
 |---|---|---|
 | React SPA | `http://localhost:5173` | Vite dev server (native) or `http://localhost` (Docker) |
-| API Server | `http://localhost:3000` | Direct access |
+| API Server | `http://localhost:3001` | Direct access |
 | MinIO Console | `http://localhost:9001` | Object storage UI |
 | PostgreSQL | `localhost:5432` | User: `postgres`, pass: from `.env` |
 | Redis | `localhost:6379` | |

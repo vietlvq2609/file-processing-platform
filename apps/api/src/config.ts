@@ -10,7 +10,7 @@ loadEnv({ path: resolve(__dirname, '../../../.env') });
 const EnvSchema = z.object({
   // ── Runtime ────────────────────────────────────────────────────────────────
   NODE_ENV: z.enum(['local', 'development', 'staging', 'production']).default('local'),
-  API_CONTAINER_PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+  API_CONTAINER_PORT: z.coerce.number().int().min(1).max(65535).default(3001),
   HOST: z.string().default('0.0.0.0'),
 
   // ── Database ───────────────────────────────────────────────────────────────

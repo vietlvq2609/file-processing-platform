@@ -12,8 +12,12 @@ export function jobRoutes(service: JobService) {
     // ─── POST /jobs ──────────────────────────────────────────────────────────
     // Submit a new processing job for an uploaded file.
     app.post('/', { schema: createJobSchema }, async (request, reply) => {
-      const { fileId, type } = request.body as { fileId: string; type?: string };
-      const job = await service.create(request.userId, fileId, type);
+      const { fileId, type, options } = request.body as {
+        fileId: string;
+        type?: string;
+        options?: { quality?: number };
+      };
+      const job = await service.create(request.userId, fileId, type, options);
       return reply.status(201).send({ data: job });
     });
 

@@ -3,11 +3,16 @@ import type { FileStatus, JobStatus } from './enums.js';
 /**
  * Payload enqueued to the BullMQ jobs queue by the API and consumed by the worker.
  */
+export interface JobOptions {
+  quality?: number;
+}
+
 export interface JobPayload {
   jobId: string;
   fileId: string;
   type: string;
   userId: string;
+  options?: JobOptions;
 }
 
 /**

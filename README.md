@@ -112,8 +112,8 @@ Creates a test user: **`test@example.com` / `password123`**
 
 | URL | Description |
 |---|---|
-| `http://localhost` | React SPA (via Nginx) |
-| `http://localhost:3000` | API Server (direct) |
+| `http://localhost:3000` | React SPA (via Nginx) |
+| `http://localhost:3001` | API Server (direct) |
 | `http://localhost:9001` | MinIO Console |
 
 ---
@@ -139,7 +139,7 @@ pnpm dev
 Individual apps:
 
 ```bash
-pnpm dev:api      # API server on :3000
+pnpm dev:api      # API server on :3001
 pnpm dev:web      # Vite dev server on :5173
 pnpm dev:worker   # Worker (BullMQ consumer)
 ```

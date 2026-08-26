@@ -20,7 +20,12 @@ export class JobService {
     private readonly queue: Queue
   ) {}
 
-  async create(userId: string, fileId: string, type = 'default'): Promise<DbJob> {
+  async create(
+    userId: string,
+    fileId: string,
+    type = 'default',
+    options?: { quality?: number }
+  ): Promise<DbJob> {
     // Ensure the file belongs to this user and is not deleted
     const file = await this.fileRepo.findById(userId, fileId);
     if (!file || file.status === 'deleted') {
@@ -30,7 +35,7 @@ export class JobService {
     const job = await this.jobRepo.create({ userId, fileId, type, status: 'pending', progress: 0 });
 
     // Enqueue to BullMQ — the Worker will pick this up asynchronously.
-    await this.queue.add('process', { jobId: job.id, fileId, type, userId });
+    await this.queue.add('process', { jobId: job.id, fileId, type, userId, options });
 
     return job;
   }

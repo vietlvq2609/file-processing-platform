@@ -1,17 +1,16 @@
 import { Card } from '../../../components/ui';
-import { useConvertFlow } from '../hooks/useConvertFlow';
-import { useFormatOptions } from '../hooks/useFormatOptions';
-import { ConvertOptionsStep } from './ConvertOptionsStep';
-import { DownloadStep } from './DownloadStep';
-import { FileInputStep } from './FileInputStep';
-import { ProcessingStep } from './ProcessingStep';
+import { FileInputStep } from '../../shared/components/FileInputStep';
+import { ProcessingStep } from '../../shared/components/ProcessingStep';
+import { useCompressFlow } from '../hooks/useCompressFlow';
+import { CompressOptionsStep } from './CompressOptionsStep';
+import { CompressResultStep } from './CompressResultStep';
 
-export function ConvertFlow() {
+export function CompressFlow() {
   const {
     step,
     selectedFile,
-    selectedFormat,
-    setSelectedFormat,
+    quality,
+    setQuality,
     progress,
     wsStatus,
     wsError,
@@ -21,23 +20,24 @@ export function ConvertFlow() {
     onFileSelected,
     onSubmit,
     onReset,
-  } = useConvertFlow();
-
-  const formats = useFormatOptions(selectedFile?.type ?? '');
+  } = useCompressFlow();
 
   return (
     <Card>
       <div className="p-6">
         {(step === 'idle' || isUploading) && (
-          <FileInputStep onFiles={onFileSelected} isUploading={isUploading} />
+          <FileInputStep
+            onFiles={onFileSelected}
+            isUploading={isUploading}
+            accept="image/*,application/pdf,video/*"
+          />
         )}
 
         {step === 'options' && selectedFile && (
-          <ConvertOptionsStep
+          <CompressOptionsStep
             file={selectedFile}
-            formats={formats}
-            selectedFormat={selectedFormat}
-            onFormatChange={setSelectedFormat}
+            quality={quality}
+            onQualityChange={setQuality}
             onSubmit={onSubmit}
             onClear={onReset}
             isPending={isSubmitting}
@@ -50,8 +50,8 @@ export function ConvertFlow() {
             status={wsStatus}
             error={wsError}
             onReset={onReset}
-            taskLabel="Converting your file…"
-            failureLabel="Conversion failed"
+            taskLabel="Compressing your file…"
+            failureLabel="Compression failed"
           />
         )}
 
@@ -59,18 +59,17 @@ export function ConvertFlow() {
           <ProcessingStep
             progress={0}
             status="failed"
-            error={wsError ?? 'Conversion failed'}
+            error={wsError ?? 'Compression failed'}
             onReset={onReset}
-            taskLabel="Converting your file…"
-            failureLabel="Conversion failed"
+            taskLabel="Compressing your file…"
+            failureLabel="Compression failed"
           />
         )}
 
         {step === 'done' && outputFileId && selectedFile && (
-          <DownloadStep
+          <CompressResultStep
             outputFileId={outputFileId}
             originalFile={selectedFile}
-            selectedFormat={selectedFormat}
             onReset={onReset}
           />
         )}

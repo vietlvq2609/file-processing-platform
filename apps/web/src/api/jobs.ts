@@ -9,8 +9,12 @@ export interface ListJobsParams {
   fileId?: string;
 }
 
-export async function createJob(fileId: string, type = 'default'): Promise<Job> {
-  const { data } = await apiClient.post<ApiSingleResponse<Job>>('/jobs', { fileId, type });
+export async function createJob(
+  fileId: string,
+  type = 'default',
+  options?: { quality?: number }
+): Promise<Job> {
+  const { data } = await apiClient.post<ApiSingleResponse<Job>>('/jobs', { fileId, type, options });
   return data.data;
 }
 

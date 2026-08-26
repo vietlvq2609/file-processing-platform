@@ -82,7 +82,7 @@ services:
       CORS_ORIGIN: http://localhost:5173
     # Public-facing service
     ports:
-      - "${API_PORT:-3000}:${API_CONTAINER_PORT:-3000}"
+      - "${API_PORT:-3001}:${API_CONTAINER_PORT:-3001}"
     depends_on:
       postgres:
         condition: service_healthy
@@ -137,10 +137,10 @@ services:
     environment:
       # Server-side variable — used by vite.config.ts to proxy requests to the
       # api container instead of localhost.
-      API_PROXY_TARGET: http://api:${API_CONTAINER_PORT:-3000}
+      API_PROXY_TARGET: http://api:${API_CONTAINER_PORT:-3001}
     # Public-facing service
     ports:
-      - "${WEB_PORT:-3001}:${WEB_CONTAINER_PORT:-5173}"
+      - "${WEB_PORT:-3000}:${WEB_CONTAINER_PORT:-5173}"
     depends_on:
       - api
     restart: unless-stopped

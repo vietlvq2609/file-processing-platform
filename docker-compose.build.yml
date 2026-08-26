@@ -73,7 +73,7 @@ services:
       # since all traffic is same-origin, but it is kept for direct API access.
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/healthz || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/healthz || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5

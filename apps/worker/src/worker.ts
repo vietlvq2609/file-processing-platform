@@ -4,6 +4,7 @@ import { Redis } from 'ioredis';
 
 import { config } from './config.js';
 import { logger } from './logger.js';
+import { compressProcessor } from './processors/CompressProcessor.js';
 import type { JobPayload } from './processors/defaultProcessor.js';
 import { defaultProcessor } from './processors/defaultProcessor.js';
 
@@ -21,6 +22,9 @@ const worker = new Worker<JobPayload>(
     // Dispatch to the correct processor by job type.
     // Add more cases here as new job types are introduced.
     switch (type) {
+      case 'compress':
+        await compressProcessor.process(job, jobRepo, redis);
+        break;
       case 'default':
       default:
         await defaultProcessor.process(job, jobRepo, redis);

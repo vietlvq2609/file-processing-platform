@@ -11,6 +11,8 @@ export interface CreateJobRequest {
    * Future types: "resize", "compress", "convert", etc.
    */
   type?: string;
+  /** Processor-specific options, e.g. quality for compress jobs. */
+  options?: { quality?: number };
 }
 
 export type CreateJobResponse = ApiResponse<Job>;

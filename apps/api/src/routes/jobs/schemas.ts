@@ -14,6 +14,13 @@ export const createJobBodySchema = {
   properties: {
     fileId: { type: 'string', format: 'uuid' },
     type: { type: 'string', minLength: 1, default: 'default' },
+    options: {
+      type: 'object',
+      properties: {
+        quality: { type: 'integer', minimum: 1, maximum: 100 },
+      },
+      additionalProperties: false,
+    },
   },
 } as const;
 

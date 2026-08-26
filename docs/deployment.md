@@ -60,7 +60,7 @@ cp .env.example .env
 | Service | Container | Port (host) | Notes |
 |---|---|---|---|
 | `nginx` | `fpp-nginx` | `80` | Only public-facing port |
-| `api` | `fpp-api` | `3000` (internal) | Not exposed in prod build |
+| `api` | `fpp-api` | `3001` (internal) | Not exposed in prod build |
 | `worker` | `fpp-worker` | — | No HTTP port |
 | `postgres` | `fpp-postgres` | `5432` (internal) | |
 | `redis` | `fpp-redis` | `6379` (internal) | |
@@ -76,8 +76,8 @@ Nginx acts as the single entry point:
 
 ```
 GET /           → Serve React build from /usr/share/nginx/html
-GET /api/*      → Proxy to http://api:3000
-GET /ws         → Proxy to http://api:3000/ws  (WebSocket upgrade)
+GET /api/*      → Proxy to http://api:3001
+GET /ws         → Proxy to http://api:3001/ws  (WebSocket upgrade)
 ```
 
 The configuration is in `infra/docker/nginx.conf`. Key settings:
