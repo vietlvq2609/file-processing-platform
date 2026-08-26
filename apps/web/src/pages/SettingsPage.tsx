@@ -5,8 +5,10 @@ import { ProfileTab } from '../features/settings/components/ProfileTab';
 import type { Tab } from '../features/settings/components/SettingsSidebar';
 import { SettingsSidebar } from '../features/settings/components/SettingsSidebar';
 import { UsageTab } from '../features/settings/components/UsageTab';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function SettingsPage() {
+  useDocumentTitle('Settings — FileProc');
   const [activeTab, setActiveTab] = useState<Tab>('profile');
 
   return (

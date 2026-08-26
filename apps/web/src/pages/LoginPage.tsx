@@ -4,9 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../features/auth/components/AuthLayout';
 import { AuthTabStrip } from '../features/auth/components/AuthTabStrip';
 import { LoginForm } from '../features/auth/components/LoginForm';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useAuthStore } from '../stores/authStore';
 
 export default function LoginPage() {
+  useDocumentTitle('Sign in — FileProc');
   const navigate = useNavigate();
   const accessToken = useAuthStore((s) => s.accessToken);
 

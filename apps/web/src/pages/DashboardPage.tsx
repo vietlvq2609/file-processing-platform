@@ -1,8 +1,10 @@
 import { QuickStartPanel } from '../features/dashboard/components/QuickStartPanel';
 import { QuickStatsRow } from '../features/dashboard/components/QuickStatsRow';
 import { RecentJobsFeed } from '../features/dashboard/components/RecentJobsFeed';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function DashboardPage() {
+  useDocumentTitle('Dashboard — FileProc');
   return (
     <main className="mx-auto max-w-6xl px-6 py-8">
       <QuickStatsRow />

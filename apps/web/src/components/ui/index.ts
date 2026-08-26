@@ -6,4 +6,5 @@ export { FileDropZone } from './FileDropZone';
 export { Input } from './Input';
 export { Modal } from './Modal';
 export { ProgressBar } from './ProgressBar';
+export { Skeleton } from './Skeleton';
 export { Spinner } from './Spinner';

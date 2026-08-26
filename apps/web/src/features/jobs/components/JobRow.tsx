@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Badge, ProgressBar } from '../../../components/ui';
 import type { Job, JobStatus } from '../../../types/domain';
@@ -48,11 +48,33 @@ export function JobRow({ job, fileName, listStatus, listPage }: JobRowProps) {
     return () => clearInterval(id);
   }, []);
 
+  const prevStatusRef = useRef<JobStatus>(liveStatus);
+  const [flashClass, setFlashClass] = useState('');
+  useEffect(() => {
+    if (prevStatusRef.current === liveStatus) return;
+    prevStatusRef.current = liveStatus;
+
+    let color = '';
+    if (liveStatus === 'completed') color = 'bg-green-50';
+    else if (liveStatus === 'failed') color = 'bg-red-50';
+    if (!color) return;
+
+    // Defer to avoid synchronous setState inside an effect body.
+    const applyId = setTimeout(() => setFlashClass(color), 0);
+    const clearId = setTimeout(() => setFlashClass(''), 2000);
+    return () => {
+      clearTimeout(applyId);
+      clearTimeout(clearId);
+    };
+  }, [liveStatus]);
+
   const displayName =
     fileName.length > TRUNCATE_LEN ? `${fileName.slice(0, TRUNCATE_LEN)}…` : fileName;
 
   return (
-    <div className="flex items-center gap-4 px-4 py-3 hover:bg-gray-50">
+    <div
+      className={`flex items-center gap-4 px-4 py-3 transition-colors duration-700 hover:bg-gray-50 ${flashClass}`}
+    >
       {/* File name + operation type */}
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-gray-900" title={fileName}>

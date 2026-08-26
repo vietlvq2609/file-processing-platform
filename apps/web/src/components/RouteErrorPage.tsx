@@ -1,4 +1,6 @@
-import { isRouteErrorResponse, useNavigate, useRouteError } from 'react-router-dom';
+import { isRouteErrorResponse, Link, useRouteError } from 'react-router-dom';
+
+import { Button } from './ui';
 
 /**
  * Rendered by React Router whenever a route's render tree throws.
@@ -10,31 +12,31 @@ import { isRouteErrorResponse, useNavigate, useRouteError } from 'react-router-d
  */
 export default function RouteErrorPage() {
   const error = useRouteError();
-  const navigate = useNavigate();
-
+  const is404 = isRouteErrorResponse(error) && error.status === 404;
   const message = resolveMessage(error);
 
   return (
-    <main className="mx-auto mt-20 max-w-md px-4 text-center">
-      <p className="mb-4 text-5xl">⚠️</p>
-      <h1 className="mb-2 text-xl font-semibold">Something went wrong</h1>
-      <p className="mb-8 text-gray-500">{message}</p>
-      <button
-        onClick={() => navigate('/app/dashboard')}
-        className="cursor-pointer border-none bg-transparent text-blue-500"
-      >
-        ← Back to dashboard
-      </button>
+    <main className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
+      <p className="mb-4 text-6xl font-bold tracking-tight text-gray-100">
+        {is404 ? '404' : '500'}
+      </p>
+      <h1 className="mb-3 font-sans text-xl font-semibold text-text-primary">
+        {is404 ? 'Page not found' : 'Something went wrong'}
+      </h1>
+      <p className="mb-8 max-w-sm text-sm text-text-secondary">{message}</p>
+      <Link to="/app/dashboard">
+        <Button variant="secondary">Go to Dashboard</Button>
+      </Link>
     </main>
   );
 }
 
 function resolveMessage(error: unknown): string {
-  // React Router 404 / method-not-allowed responses
   if (isRouteErrorResponse(error)) {
-    return error.status === 404 ? 'Page not found.' : `Unexpected error (${error.status}).`;
+    return error.status === 404
+      ? "The page you're looking for doesn't exist."
+      : `Unexpected error (${error.status}).`;
   }
-  // Expected throws from hooks like useRequiredParam
   if (error instanceof Error) {
     return error.message;
   }

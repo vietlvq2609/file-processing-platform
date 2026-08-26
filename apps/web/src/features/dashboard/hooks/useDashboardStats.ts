@@ -8,6 +8,7 @@ export interface DashboardStats {
   fileCount: number | null;
   jobCount: number | null;
   storageBytes: number | null;
+  isLoading: boolean;
 }
 
 export function useDashboardStats(): DashboardStats {
@@ -27,5 +28,10 @@ export function useDashboardStats(): DashboardStats {
     ? filesQuery.data.data.reduce((sum, f) => sum + f.size, 0)
     : null;
 
-  return { fileCount, jobCount, storageBytes };
+  return {
+    fileCount,
+    jobCount,
+    storageBytes,
+    isLoading: filesQuery.isLoading || jobsQuery.isLoading,
+  };
 }

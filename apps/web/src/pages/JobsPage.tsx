@@ -1,8 +1,10 @@
 import { JobList } from '../features/jobs/components/JobList';
 import { JobsFilterTabs } from '../features/jobs/components/JobsFilterTabs';
 import { useJobsPageState } from '../features/jobs/hooks/useJobsPageState';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function JobsPage() {
+  useDocumentTitle('My Jobs — FileProc');
   const { status, page, setStatus, setPage } = useJobsPageState();
 
   return (
