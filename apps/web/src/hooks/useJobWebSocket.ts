@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { useAuthStore } from '../stores/authStore';
+import { useGuestStore } from '../stores/guestStore';
 import type { JobStatus } from '../types/domain';
 
 export interface JobWsState {
@@ -20,6 +21,9 @@ export function useJobWebSocket(
   initial: { progress: number; status: JobStatus }
 ): JobWsState {
   const accessToken = useAuthStore((s) => s.accessToken);
+  const guestToken = useGuestStore((s) => s.guestToken);
+  // Authenticated token takes precedence; fall back to guest token.
+  const token = accessToken ?? guestToken;
   const [state, setState] = useState<JobWsState>({
     progress: initial.progress,
     status: initial.status,
@@ -32,12 +36,12 @@ export function useJobWebSocket(
 
   useEffect(() => {
     const isTerminal = state.status === 'completed' || state.status === 'failed';
-    if (!jobId || !accessToken || isTerminal) return;
+    if (!jobId || !token || isTerminal) return;
 
     const wsBase =
       import.meta.env.VITE_WS_URL ??
       (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host;
-    const url = `${wsBase}/ws?token=${encodeURIComponent(accessToken)}`;
+    const url = `${wsBase}/ws?token=${encodeURIComponent(token)}`;
     const ws = new WebSocket(url);
     wsRef.current = ws;
 
@@ -102,7 +106,7 @@ export function useJobWebSocket(
       }
     };
     // Re-run when job becomes terminal to stop the connection.
-  }, [jobId, accessToken, state.status]);
+  }, [jobId, token, state.status]);
 
   return state;
 }

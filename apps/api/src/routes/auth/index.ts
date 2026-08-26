@@ -3,7 +3,12 @@ import type { FastifyInstance } from 'fastify';
 import { config } from '../../config.js';
 import { authenticate } from '../../plugins/authenticate.js';
 import type { AuthService } from '../../services/AuthService.js';
-import { changePasswordSchema, loginSchema, registerSchema } from './schemas.js';
+import {
+  changePasswordSchema,
+  guestSessionSchema,
+  loginSchema,
+  registerSchema,
+} from './schemas.js';
 
 const REFRESH_COOKIE = 'refreshToken';
 
@@ -84,5 +89,12 @@ export function authRoutes(service: AuthService) {
         return reply.status(204).send();
       }
     );
+
+    // ─── POST /auth/guest ────────────────────────────────────────────────────
+    // Issues a short-lived access token for an ephemeral guest user.
+    app.post('/guest', { schema: guestSessionSchema }, async (_request, reply) => {
+      const { accessToken } = await service.createGuestSession();
+      return reply.status(201).send({ data: { accessToken } });
+    });
   };
 }

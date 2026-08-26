@@ -43,3 +43,17 @@ export const changePasswordBodySchema = {
 export const changePasswordSchema: FastifySchema = {
   body: changePasswordBodySchema,
 };
+
+export const guestSessionSchema: FastifySchema = {
+  response: {
+    201: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'object',
+          properties: { accessToken: { type: 'string' } },
+        },
+      },
+    },
+  },
+};

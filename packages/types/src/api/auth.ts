@@ -45,3 +45,9 @@ export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
 }
+
+// ─── POST /auth/guest ────────────────────────────────────────────────────────
+
+export interface GuestSessionResponse {
+  data: { accessToken: string };
+}

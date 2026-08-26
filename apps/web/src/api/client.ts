@@ -1,15 +1,16 @@
 import axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios';
 
 import { useAuthStore } from '../stores/authStore';
+import { useGuestStore } from '../stores/guestStore';
 
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? '/api',
   withCredentials: true,
 });
 
-// Inject access token on every request.
+// Inject access token on every request; fall back to guest token when not authenticated.
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = useAuthStore.getState().accessToken;
+  const token = useAuthStore.getState().accessToken ?? useGuestStore.getState().guestToken;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

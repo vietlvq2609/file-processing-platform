@@ -8,6 +8,7 @@ export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
   findById(id: string): Promise<User | null>;
   create(data: { email: string; passwordHash: string }): Promise<User>;
+  createGuest(id: string): Promise<User>;
   setRefreshTokenHash(userId: string, hash: string | null): Promise<void>;
   updatePassword(userId: string, passwordHash: string): Promise<void>;
 }
@@ -27,6 +28,14 @@ export class UserRepository implements IUserRepository {
 
   async create(data: { email: string; passwordHash: string }): Promise<User> {
     const [user] = await this.db.insert(users).values(data).returning();
+    return user;
+  }
+
+  async createGuest(id: string): Promise<User> {
+    const [user] = await this.db
+      .insert(users)
+      .values({ id, email: `guest_${id}@guest.internal`, passwordHash: '', isGuest: true })
+      .returning();
     return user;
   }
 

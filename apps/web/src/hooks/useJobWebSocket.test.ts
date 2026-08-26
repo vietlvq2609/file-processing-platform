@@ -84,7 +84,12 @@ describe('useJobWebSocket', () => {
 
   it('returns the initial state before the socket opens', () => {
     const { result } = renderHook(() => useJobWebSocket(JOB_ID, INITIAL));
-    expect(result.current).toEqual({ progress: 0, status: 'pending', error: null });
+    expect(result.current).toEqual({
+      progress: 0,
+      status: 'pending',
+      error: null,
+      outputFileId: null,
+    });
   });
 
   it('sends a subscribe message after the socket opens', () => {

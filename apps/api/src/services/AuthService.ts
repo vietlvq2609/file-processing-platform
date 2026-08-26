@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 
 import type { IUserRepository } from '@fpp/db';
 import bcrypt from 'bcryptjs';
@@ -127,6 +127,12 @@ export class AuthService {
 
   async logout(userId: string): Promise<void> {
     await this.repo.setRefreshTokenHash(userId, null);
+  }
+
+  async createGuestSession(): Promise<{ accessToken: string }> {
+    const id = randomUUID();
+    await this.repo.createGuest(id);
+    return { accessToken: this.signAccessToken(id) };
   }
 
   async me(userId: string): Promise<PublicUser> {

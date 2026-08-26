@@ -20,6 +20,21 @@ export class InMemoryUserRepository implements IUserRepository {
       email: data.email,
       passwordHash: data.passwordHash,
       refreshTokenHash: null,
+      isGuest: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.users.set(user.id, user);
+    return Promise.resolve(user);
+  }
+
+  createGuest(id: string): Promise<User> {
+    const user: User = {
+      id,
+      email: `guest_${id}@guest.internal`,
+      passwordHash: '',
+      refreshTokenHash: null,
+      isGuest: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
