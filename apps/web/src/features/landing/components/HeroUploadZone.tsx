@@ -2,26 +2,32 @@ import { Link } from 'react-router-dom';
 
 import { Button } from '../../../components/ui/Button';
 import { useGuestJob } from '../hooks/useGuestJob';
+import { GuestCompressZone } from './GuestCompressZone';
 import { GuestConvertZone } from './GuestConvertZone';
 
 interface HeroUploadZoneProps {
   activeTab: 'convert' | 'compress';
 }
 
+// Skeleton placeholder keeps the hero height stable while the guest session loads.
+const Skeleton = () => (
+  <div className="min-h-45 animate-pulse rounded-lg border border-gray-200 bg-gray-50" />
+);
+
 export function HeroUploadZone({ activeTab }: HeroUploadZoneProps) {
   const { isSupported, isReady } = useGuestJob();
 
   if (isSupported && activeTab === 'convert') {
-    if (!isReady) {
-      // Skeleton placeholder keeps the hero height stable while the guest session loads.
-      return (
-        <div className="min-h-45 animate-pulse rounded-lg border border-gray-200 bg-gray-50" />
-      );
-    }
+    if (!isReady) return <Skeleton />;
     return <GuestConvertZone />;
   }
 
-  // Fallback CTA for the Compress tab (not yet implemented for guests) or unsupported browsers.
+  if (isSupported && activeTab === 'compress') {
+    if (!isReady) return <Skeleton />;
+    return <GuestCompressZone />;
+  }
+
+  // Fallback CTA for unsupported browsers.
   return (
     <div className="flex min-h-45 flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 px-8 py-10 text-center">
       <p className="text-base font-medium text-gray-700">
