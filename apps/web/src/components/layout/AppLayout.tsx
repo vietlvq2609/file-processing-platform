@@ -30,14 +30,17 @@ export function AppLayout() {
   return (
     <div className="flex min-h-screen flex-col">
       <nav className="sticky top-0 z-10 border-b border-gray-200 bg-white">
-        <div className="flex h-[52px] items-center justify-between px-6">
+        <div className="flex h-13 items-center justify-between px-6">
           {/* Left cluster: brand + tool links */}
           <div className="flex items-center gap-1">
             <NavLink
               to="/app/dashboard"
               className="mr-4 text-sm font-bold text-gray-800 no-underline"
             >
-              FileProc
+              <div className="flex items-center">
+                <img src="/images/logo.png" alt="Logo" className="w-8 h-8" />
+                <span className="ml-2">FileProc</span>
+              </div>
             </NavLink>
             <div className="hidden items-center gap-1 md:flex">
               {TOOL_LINKS.map(({ to, label }) => (

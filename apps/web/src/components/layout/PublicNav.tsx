@@ -10,7 +10,10 @@ export function PublicNav() {
     <nav className="sticky top-0 z-10 border-b border-gray-200 bg-white">
       <div className="mx-auto flex h-13 max-w-6xl items-center justify-between px-6">
         <Link to="/" className="text-sm font-bold text-gray-800 no-underline">
-          FileProc
+          <div className="flex items-center">
+            <img src="/images/logo.png" alt="Logo" className="w-8 h-8" />
+            <span className="ml-2">FileProc</span>
+          </div>
         </Link>
 
         <div className="flex items-center gap-2">
