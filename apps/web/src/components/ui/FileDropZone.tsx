@@ -45,7 +45,7 @@ export function FileDropZone({
       }}
       onDragLeave={() => setIsDragging(false)}
       onDrop={onDrop}
-      className={`mb-6 select-none rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors duration-150 ${
+      className={`mb-6 select-none rounded-lg border-2 border-dashed px-4 py-20 text-center transition-colors duration-150 ${
         isPending ? 'cursor-wait' : 'cursor-pointer'
       } ${isDragging ? 'border-brand bg-brand-light' : 'border-border bg-gray-50'}`}
     >
