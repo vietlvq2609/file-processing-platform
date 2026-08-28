@@ -19,7 +19,9 @@ export function DownloadStep({
 }: DownloadStepProps) {
   const { mutate: download, isPending } = useDownloadFile();
 
-  const outputName = `${originalFile.name.replace(/\.[^.]+$/, '')}.${selectedFormat.toLowerCase()}`;
+  const extMap: Record<string, string> = { jpeg: 'jpg' };
+  const ext = extMap[selectedFormat.toLowerCase()] ?? selectedFormat.toLowerCase();
+  const outputName = `${originalFile.name.replace(/\.[^.]+$/, '')}.${ext}`;
 
   return (
     <div className="space-y-6 text-center">

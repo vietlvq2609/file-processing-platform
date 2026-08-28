@@ -5,6 +5,7 @@ import { Redis } from 'ioredis';
 import { config } from './config.js';
 import { logger } from './logger.js';
 import { compressProcessor } from './processors/CompressProcessor.js';
+import { convertProcessor } from './processors/ConvertProcessor.js';
 import type { JobPayload } from './processors/defaultProcessor.js';
 import { defaultProcessor } from './processors/defaultProcessor.js';
 
@@ -25,6 +26,11 @@ const worker = new Worker<JobPayload>(
     switch (type) {
       case 'compress':
         await compressProcessor.process(job, jobRepo, fileRepo, redis);
+        break;
+      case 'jpeg':
+      case 'png':
+      case 'webp':
+        await convertProcessor.process(job, jobRepo, fileRepo, redis);
         break;
       case 'default':
       default:

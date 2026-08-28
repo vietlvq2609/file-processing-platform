@@ -1,5 +1,5 @@
 const FORMAT_MAP: Record<string, string[]> = {
-  'image/': ['PNG', 'JPEG', 'WEBP', 'GIF', 'BMP'],
+  'image/': ['PNG', 'JPEG', 'WEBP'],
   'application/pdf': ['DOCX', 'PNG', 'TXT'],
   'video/': ['MP4', 'WEBM', 'GIF', 'MP3'],
   'audio/': ['MP3', 'WAV', 'OGG', 'FLAC'],
