@@ -43,11 +43,7 @@ export function GuestCompressZone() {
   return (
     <div className="rounded-lg border border-gray-200 bg-white px-6 py-8">
       {(step === 'idle' || isUploading) && (
-        <FileInputStep
-          onFiles={onFileSelected}
-          isUploading={isUploading}
-          accept="image/*,application/pdf,video/*"
-        />
+        <FileInputStep onFiles={onFileSelected} isUploading={isUploading} />
       )}
 
       {step === 'options' && selectedFile && (

@@ -6,11 +6,7 @@ interface FileInputStepProps {
   accept?: string;
 }
 
-export function FileInputStep({
-  onFiles,
-  isUploading,
-  accept = 'image/*,application/pdf,video/*,audio/*',
-}: FileInputStepProps) {
+export function FileInputStep({ onFiles, isUploading, accept = 'image/*' }: FileInputStepProps) {
   return (
     <div className="space-y-3">
       <FileDropZone

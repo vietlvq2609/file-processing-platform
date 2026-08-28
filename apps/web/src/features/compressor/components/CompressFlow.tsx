@@ -26,11 +26,7 @@ export function CompressFlow() {
     <Card>
       <div className="p-6">
         {(step === 'idle' || isUploading) && (
-          <FileInputStep
-            onFiles={onFileSelected}
-            isUploading={isUploading}
-            accept="image/*,application/pdf,video/*"
-          />
+          <FileInputStep onFiles={onFileSelected} isUploading={isUploading} />
         )}
 
         {step === 'options' && selectedFile && (
