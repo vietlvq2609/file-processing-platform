@@ -6,7 +6,7 @@ import { useFile } from '../../files/hooks/useFile';
 import { SizeComparison } from './SizeComparison';
 
 interface CompressResultStepProps {
-  outputFileId: string;
+  outputFileId: string | null;
   originalFile: File;
   onReset: () => void;
 }
@@ -16,12 +16,12 @@ export function CompressResultStep({
   originalFile,
   onReset,
 }: CompressResultStepProps) {
-  const { data: outputFile, isLoading } = useFile(outputFileId);
+  const { data: outputFile, isLoading } = useFile(outputFileId ?? '');
   const { mutate: download, isPending: isDownloading } = useDownloadFile();
 
   const outputName = `compressed_${originalFile.name}`;
 
-  if (isLoading) {
+  if (!outputFileId || isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
         <Spinner size="md" />
@@ -41,7 +41,8 @@ export function CompressResultStep({
         variant="primary"
         size="lg"
         isLoading={isDownloading}
-        onClick={() => download({ fileId: outputFileId, fileName: outputName })}
+        disabled={!outputFileId}
+        onClick={() => outputFileId && download({ fileId: outputFileId, fileName: outputName })}
         className="w-full"
       >
         Download compressed file

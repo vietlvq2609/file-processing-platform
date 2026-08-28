@@ -1,4 +1,4 @@
-import type { IJobRepository } from '@fpp/db';
+import type { IFileRepository, IJobRepository } from '@fpp/db';
 import type { JobPayload } from '@fpp/types';
 import type { Job as BullJob } from 'bullmq';
 import type { Redis } from 'ioredis';
@@ -23,6 +23,7 @@ export class DefaultProcessor implements IProcessor {
   async process(
     bullJob: BullJob<JobPayload>,
     jobRepo: IJobRepository,
+    _fileRepo: IFileRepository,
     redis: Redis
   ): Promise<void> {
     const { jobId, fileId } = bullJob.data;

@@ -29,6 +29,7 @@ export interface Job {
   status: JobStatus;
   progress: number;
   outputPath: string | null;
+  outputFileId: string | null;
   errorMessage: string | null;
   createdAt: string;
   updatedAt: string;

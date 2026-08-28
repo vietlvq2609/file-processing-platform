@@ -1,4 +1,4 @@
-import type { IJobRepository } from '@fpp/db';
+import type { IFileRepository, IJobRepository } from '@fpp/db';
 import type { JobPayload } from '@fpp/types';
 import type { Job as BullJob } from 'bullmq';
 import type { Redis } from 'ioredis';
@@ -20,6 +20,8 @@ describe('DefaultProcessor', () => {
     const updateProgress = vi.fn().mockResolvedValue(undefined);
     const jobRepo = { updateStatus, updateProgress } as unknown as IJobRepository;
 
+    const fileRepo = {} as unknown as IFileRepository;
+
     const publish = vi.fn().mockResolvedValue(0);
     const redis = { publish } as unknown as Redis;
 
@@ -35,7 +37,7 @@ describe('DefaultProcessor', () => {
     } as unknown as BullJob<JobPayload>;
 
     const processor = new DefaultProcessor();
-    const processPromise = processor.process(bullJob, jobRepo, redis);
+    const processPromise = processor.process(bullJob, jobRepo, fileRepo, redis);
 
     await vi.runAllTimersAsync();
     await processPromise;

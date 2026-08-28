@@ -19,7 +19,7 @@ export interface IJobRepository {
   updateStatus(
     jobId: string,
     status: JobStatus,
-    extra?: { errorMessage?: string; outputPath?: string; progress?: number }
+    extra?: { errorMessage?: string; outputPath?: string; outputFileId?: string; progress?: number }
   ): Promise<DbJob | null>;
   cancel(userId: string, jobId: string): Promise<DbJob | null>;
   updateProgress(jobId: string, progress: number): Promise<void>;
@@ -75,7 +75,7 @@ export class JobRepository implements IJobRepository {
   async updateStatus(
     jobId: string,
     status: JobStatus,
-    extra?: { errorMessage?: string; outputPath?: string; progress?: number }
+    extra?: { errorMessage?: string; outputPath?: string; outputFileId?: string; progress?: number }
   ): Promise<DbJob | null> {
     const [job] = await this.db
       .update(jobs)
