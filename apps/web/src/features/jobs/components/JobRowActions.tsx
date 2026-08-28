@@ -16,9 +16,10 @@ export function JobRowActions({ job, liveStatus }: JobRowActionsProps) {
       {liveStatus === 'completed' && (
         <button
           onClick={() =>
-            download({ fileId: job.fileId, fileName: `job-${job.id.slice(0, 8)}-result` })
+            job.outputFileId &&
+            download({ fileId: job.outputFileId, fileName: `job-${job.id.slice(0, 8)}-result` })
           }
-          disabled={isPending}
+          disabled={isPending || !job.outputFileId}
           className={`animate-[fade-in_200ms_ease-out_forwards] rounded-md bg-brand px-3 py-1 text-xs font-semibold text-white transition-opacity ${
             isPending ? 'cursor-wait opacity-50' : 'cursor-pointer hover:opacity-90'
           }`}

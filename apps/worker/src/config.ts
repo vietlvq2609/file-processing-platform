@@ -11,6 +11,15 @@ const EnvSchema = z.object({
   NODE_ENV: z.enum(['local', 'development', 'staging', 'production']).default('local'),
   DATABASE_URL: z.string().url(),
   REDIS_URL: z.string().default('redis://localhost:6379'),
+  MINIO_ENDPOINT: z.string().default('localhost'),
+  MINIO_PORT: z.coerce.number().int().min(1).max(65535).default(9000),
+  MINIO_USE_SSL: z
+    .string()
+    .default('false')
+    .transform((v) => v === 'true'),
+  MINIO_ACCESS_KEY: z.string().min(1).default('minioadmin'),
+  MINIO_SECRET_KEY: z.string().min(1).default('minioadmin'),
+  MINIO_BUCKET: z.string().min(1).default('uploads'),
 });
 
 function parseConfig() {
@@ -34,5 +43,13 @@ export const config = {
   },
   redis: {
     url: env.REDIS_URL,
+  },
+  minio: {
+    endPoint: env.MINIO_ENDPOINT,
+    port: env.MINIO_PORT,
+    useSSL: env.MINIO_USE_SSL,
+    accessKey: env.MINIO_ACCESS_KEY,
+    secretKey: env.MINIO_SECRET_KEY,
+    bucket: env.MINIO_BUCKET,
   },
 } as const;

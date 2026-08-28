@@ -1,4 +1,4 @@
-import { createDb, JobRepository } from '@fpp/db';
+import { createDb, FileRepository, JobRepository } from '@fpp/db';
 import { Worker } from 'bullmq';
 import { Redis } from 'ioredis';
 
@@ -13,6 +13,7 @@ const JOBS_QUEUE_NAME = 'jobs';
 const redis = new Redis(config.redis.url, { maxRetriesPerRequest: null });
 const db = createDb(config.database.url);
 const jobRepo = new JobRepository(db);
+const fileRepo = new FileRepository(db);
 
 const worker = new Worker<JobPayload>(
   JOBS_QUEUE_NAME,
@@ -23,11 +24,11 @@ const worker = new Worker<JobPayload>(
     // Add more cases here as new job types are introduced.
     switch (type) {
       case 'compress':
-        await compressProcessor.process(job, jobRepo, redis);
+        await compressProcessor.process(job, jobRepo, fileRepo, redis);
         break;
       case 'default':
       default:
-        await defaultProcessor.process(job, jobRepo, redis);
+        await defaultProcessor.process(job, jobRepo, fileRepo, redis);
     }
   },
   {

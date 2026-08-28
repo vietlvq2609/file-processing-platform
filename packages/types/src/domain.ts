@@ -71,6 +71,8 @@ export interface Job {
   progress: number;
   /** Storage key for the processed output file. Non-null when status is "completed". */
   outputPath: string | null;
+  /** ID of the output File record created on completion. Non-null when status is "completed". */
+  outputFileId: string | null;
   /** Human-readable error description. Non-null when status is "failed". */
   errorMessage: string | null;
   createdAt: string;

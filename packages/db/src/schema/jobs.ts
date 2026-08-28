@@ -17,6 +17,7 @@ export const jobs = pgTable('jobs', {
   status: jobStatusEnum('status').notNull().default('pending'),
   progress: integer('progress').notNull().default(0),
   outputPath: text('output_path'),
+  outputFileId: uuid('output_file_id').references(() => files.id, { onDelete: 'set null' }),
   errorMessage: text('error_message'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

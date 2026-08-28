@@ -29,6 +29,13 @@
       "when": 1787732212167,
       "tag": "0003_freezing_gateway",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1787890700537,
+      "tag": "0004_ambiguous_serpent_society",
+      "breakpoints": true
     }
   ]
 }
