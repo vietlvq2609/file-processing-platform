@@ -2,12 +2,14 @@ import { createDb, FileRepository, JobRepository } from '@fpp/db';
 import { Worker } from 'bullmq';
 import { Redis } from 'ioredis';
 
+import { startPendingUploadCleanup } from './cleanupPendingUploads.js';
 import { config } from './config.js';
 import { logger } from './logger.js';
 import { compressProcessor } from './processors/CompressProcessor.js';
 import { convertProcessor } from './processors/ConvertProcessor.js';
 import type { JobPayload } from './processors/defaultProcessor.js';
 import { defaultProcessor } from './processors/defaultProcessor.js';
+import { minioClient } from './storage.js';
 
 const JOBS_QUEUE_NAME = 'jobs';
 
@@ -15,6 +17,15 @@ const redis = new Redis(config.redis.url, { maxRetriesPerRequest: null });
 const db = createDb(config.database.url);
 const jobRepo = new JobRepository(db);
 const fileRepo = new FileRepository(db);
+
+export const pendingUploadCleanupHandle = startPendingUploadCleanup(
+  fileRepo,
+  minioClient,
+  config.minio.bucket,
+  config.pendingUpload.ttlSeconds,
+  config.pendingUpload.cleanupIntervalSeconds,
+  logger
+);
 
 const worker = new Worker<JobPayload>(
   JOBS_QUEUE_NAME,

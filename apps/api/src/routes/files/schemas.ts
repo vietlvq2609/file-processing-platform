@@ -26,3 +26,18 @@ export const listFilesSchema: FastifySchema = {
 export const fileByIdSchema: FastifySchema = {
   params: fileParamsSchema,
 };
+
+// POST /files/upload-url body
+export const createUploadUrlBodySchema = {
+  type: 'object',
+  required: ['filename', 'mimeType', 'size'],
+  properties: {
+    filename: { type: 'string', minLength: 1, maxLength: 255 },
+    mimeType: { type: 'string', minLength: 1, maxLength: 127 },
+    size: { type: 'integer', minimum: 1 },
+  },
+} as const;
+
+export const createUploadUrlSchema: FastifySchema = {
+  body: createUploadUrlBodySchema,
+};

@@ -2,7 +2,6 @@ import './types/index.js';
 
 import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
-import multipart from '@fastify/multipart';
 import websocket from '@fastify/websocket';
 import { ApiKeyRepository, createDb, FileRepository, JobRepository, UserRepository } from '@fpp/db';
 import Fastify from 'fastify';
@@ -40,13 +39,6 @@ export function buildApp() {
   // @fastify/cookie must be registered before any route that reads/sets cookies.
   app.register(cookie);
   app.register(websocket);
-
-  app.register(multipart, {
-    limits: {
-      fileSize: config.upload.maxFileSizeBytes,
-      files: 1,
-    },
-  });
 
   // ── Dependency composition ─────────────────────────────────────────────────
   const db = createDb(config.database.url);
