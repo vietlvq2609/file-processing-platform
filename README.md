@@ -32,6 +32,7 @@ Users upload files, submit them for background processing (convert, compress, or
 
 - 🔐 **Authentication** — JWT access + refresh tokens, automatic silent refresh via Axios interceptor
 - 📁 **File Management** — Upload, list, search, download, and soft-delete files
+- 🚀 **Presigned Uploads** — Browser uploads directly to MinIO via a presigned URL, keeping file bytes off the API server
 - ⚙️ **Background Processing** — Async job queue (BullMQ/Redis) with retry support
 - 📡 **Real-Time Progress** — WebSocket push from Worker → Redis Pub/Sub → API → Browser
 - 🧰 **Three Processing Pillars** — Converter, Compressor, and Tools
@@ -59,12 +60,14 @@ flowchart TB
     Browser -- "HTTP / WebSocket" --> Nginx
     Nginx --> API
     API --> PG
-    API --> MinIO
     API <--> Redis
     Redis <--> Worker
     Worker --> PG
     Worker --> MinIO
+    Browser -. "direct upload<br/>(presigned URL)" .-> MinIO
 ```
+
+File bytes never pass through the API — the browser uploads directly to MinIO using a presigned URL, keeping the API server free to handle requests instead of streaming file data.
 
 Full service boundaries, key design decisions, repository structure, and database schema are documented in [docs/architecture.md](docs/architecture.md).
 
@@ -84,10 +87,17 @@ sequenceDiagram
     participant W as Worker
     participant S as MinIO
 
-    User->>Web: Upload file & start job
-    Web->>API: POST /api/v1/files, /api/v1/jobs
-    API->>DB: Insert file & job rows
-    API->>S: Store raw file
+    User->>Web: Select file to upload
+    Web->>API: POST /files/upload-url
+    API->>DB: Insert file row (status: pending)
+    API-->>Web: presigned upload URL
+    Web->>S: Upload file directly (presigned, bypasses API)
+    Web->>API: POST /files/:id/confirm-upload
+    API->>S: Verify uploaded object
+    API->>DB: Mark file ready
+    User->>Web: Start job
+    Web->>API: POST /jobs
+    API->>DB: Insert job row
     API->>Q: Enqueue job
     API-->>Web: 201 Created { jobId }
     Web->>API: Open WebSocket /ws

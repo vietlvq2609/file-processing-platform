@@ -24,12 +24,12 @@ flowchart TB
     Browser -- "HTTP / WebSocket" --> Nginx
     Nginx --> API
     API --> PG
-    API -- "read / write" --> MinIO
     API <--> Redis
     Redis <--> Worker
     Worker --> PG
     Worker -- "read / write" --> MinIO
     Worker -. "progress via Pub/Sub → API → Browser" .-> API
+    Browser -. "direct upload (presigned URL)" .-> MinIO
 ```
 
 ---
@@ -102,6 +102,10 @@ File I/O is handled through a storage abstraction. The current implementation us
 
 All database access goes through repository classes in `packages/db/src/repositories/`. Services never call the database directly. This centralises query logic and makes services unit-testable with stub repositories.
 
+### Presigned uploads bypass the API server
+
+File bytes are never streamed through the API. `FileService.createUploadUrl` reserves a `pending` file row and returns a MinIO presigned POST policy; the browser uploads directly to MinIO. The API only touches the object once, in `confirmUpload`, to `statObject` and verify its size before flipping the row to `ready`. This keeps the API server's request handling stateless and cheap regardless of file size, at the cost of a short window where a file row exists with no confirmed object behind it — handled by the abandoned-upload cleanup sweep (see Data Flows below).
+
 ---
 
 ## Backend Layer Responsibilities
@@ -135,7 +139,7 @@ sequenceDiagram
 - Access token: short-lived JWT (15 min), stored in Zustand memory store
 - Refresh token: longer-lived JWT (7 days), stored in httpOnly cookie
 
-### 2. File Upload
+### 2. File Upload (Presigned)
 
 ```mermaid
 sequenceDiagram
@@ -144,13 +148,38 @@ sequenceDiagram
     participant DB as PostgreSQL
     participant S as MinIO
 
-    Browser->>API: POST /api/v1/files (multipart)
-    API->>DB: INSERT file
-    API->>S: write bytes
-    API-->>Browser: 201 { file }
+    Browser->>API: POST /files/upload-url { filename, mimeType, size }
+    API->>DB: INSERT file (status = pending)
+    API->>API: Build presigned POST policy (bucket, key, expiry, size range)
+    API-->>Browser: { fileId, uploadUrl, formFields, expiresAt }
+    Browser->>S: POST uploadUrl + formFields + bytes (direct, bypasses API)
+    Browser->>API: POST /files/:id/confirm-upload
+    API->>S: statObject (verify size matches reserved file)
+    API->>DB: UPDATE file SET status = ready
+    API-->>Browser: 200 { file }
 ```
 
-### 3. Job Submission and Processing
+The API never receives file bytes — it only issues the presigned policy and later verifies the object landed correctly.
+
+### 3. Abandoned Upload Cleanup
+
+```mermaid
+sequenceDiagram
+    participant W as Worker (interval sweep)
+    participant DB as PostgreSQL
+    participant S as MinIO
+
+    loop Every cleanupIntervalSeconds
+        W->>DB: Find files WHERE status = pending AND created_at < now() - ttlSeconds
+        DB-->>W: expired pending files
+        W->>S: removeObject (best-effort; object may not exist)
+        W->>DB: UPDATE file SET status = deleted
+    end
+```
+
+Runs on a plain interval timer in the Worker process, independent of BullMQ. Cleans up file rows whose presigned upload was abandoned or never confirmed, so they don't linger as orphaned `pending` records.
+
+### 4. Job Submission and Processing
 
 ```mermaid
 sequenceDiagram
@@ -172,18 +201,21 @@ sequenceDiagram
     W->>DB: UPDATE job
 ```
 
-### 4. Real-Time Progress
+### 5. Real-Time Progress
 
 ```mermaid
 sequenceDiagram
+    participant Browser
+    participant API as API Server
     participant W as Worker
     participant Q as Redis Pub/Sub
-    participant API as API Server
-    participant Browser as Browser (WebSocket)
 
-    W->>Q: PUBLISH progress event
-    Q->>API: notify
-    API->>Browser: WS push { jobId, progress, status }
+    Browser->>API: GET /ws?token=<accessToken> (WebSocket upgrade)
+    API->>API: Verify JWT from query param
+    Browser->>API: { type: "subscribe", jobId }
+    W->>Q: PUBLISH job:progress:<jobId> { progress, status }
+    Q->>API: pmessage (psubscribe "job:*")
+    API-->>Browser: WS push { type, jobId, progress, status }
 ```
 
 ---
@@ -234,7 +266,7 @@ erDiagram
 | `user_id` | UUID FK → users | |
 | `file_id` | UUID FK → files | |
 | `job_type` | text | processing type enum |
-| `status` | text | `pending` \| `processing` \| `completed` \| `failed` |
+| `status` | text | `pending` \| `active` \| `completed` \| `failed` |
 | `progress` | integer | 0–100 |
 | `output_path` | text | storage key of processed result |
 | `error` | text | error message if failed |
@@ -257,9 +289,9 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
     [*] --> pending
-    pending --> processing
-    processing --> completed
-    processing --> failed
+    pending --> active
+    active --> completed
+    active --> failed
 ```
 
 ---
