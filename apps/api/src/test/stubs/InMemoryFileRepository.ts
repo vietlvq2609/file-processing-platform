@@ -40,4 +40,19 @@ export class InMemoryFileRepository implements IFileRepository {
     this.files.set(fileId, updated);
     return Promise.resolve(updated);
   }
+
+  markReady(userId: string, fileId: string): Promise<DbFile | null> {
+    const file = this.files.get(fileId);
+    if (!file || file.userId !== userId || file.status !== 'pending') return Promise.resolve(null);
+    const updated: DbFile = { ...file, status: 'ready', updatedAt: new Date() };
+    this.files.set(fileId, updated);
+    return Promise.resolve(updated);
+  }
+
+  findExpiredPending(before: Date): Promise<DbFile[]> {
+    const expired = Array.from(this.files.values()).filter(
+      (f) => f.status === 'pending' && f.createdAt < before
+    );
+    return Promise.resolve(expired);
+  }
 }

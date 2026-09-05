@@ -20,6 +20,10 @@ const EnvSchema = z.object({
   MINIO_ACCESS_KEY: z.string().min(1).default('minioadmin'),
   MINIO_SECRET_KEY: z.string().min(1).default('minioadmin'),
   MINIO_BUCKET: z.string().min(1).default('uploads'),
+  // How long a file may sit in "pending" (reserved but never uploaded/confirmed)
+  // before the cleanup sweep removes it.
+  PENDING_UPLOAD_TTL_SECONDS: z.coerce.number().int().positive().default(3600), // 1 hour
+  PENDING_UPLOAD_CLEANUP_INTERVAL_SECONDS: z.coerce.number().int().positive().default(900), // 15 min
 });
 
 function parseConfig() {
@@ -51,5 +55,9 @@ export const config = {
     accessKey: env.MINIO_ACCESS_KEY,
     secretKey: env.MINIO_SECRET_KEY,
     bucket: env.MINIO_BUCKET,
+  },
+  pendingUpload: {
+    ttlSeconds: env.PENDING_UPLOAD_TTL_SECONDS,
+    cleanupIntervalSeconds: env.PENDING_UPLOAD_CLEANUP_INTERVAL_SECONDS,
   },
 } as const;

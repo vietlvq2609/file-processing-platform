@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, ne } from 'drizzle-orm';
+import { and, count, desc, eq, ilike, lt, ne } from 'drizzle-orm';
 
 import type { DrizzleClient } from '../client.js';
 import type { File as DbFile, NewFile } from '../schema/index.js';
@@ -15,6 +15,10 @@ export interface IFileRepository {
   findAllByUser(userId: string, opts: ListOptions): Promise<{ data: DbFile[]; total: number }>;
   findById(userId: string, fileId: string): Promise<DbFile | null>;
   softDelete(userId: string, fileId: string): Promise<DbFile | null>;
+  /** Transitions a file from "pending" to "ready". Returns null if the file isn't pending. */
+  markReady(userId: string, fileId: string): Promise<DbFile | null>;
+  /** Finds "pending" files reserved before the given cutoff — candidates for cleanup. */
+  findExpiredPending(before: Date): Promise<DbFile[]>;
 }
 
 export class FileRepository implements IFileRepository {
@@ -72,5 +76,21 @@ export class FileRepository implements IFileRepository {
       .where(and(eq(files.id, fileId), eq(files.userId, userId)))
       .returning();
     return file ?? null;
+  }
+
+  async markReady(userId: string, fileId: string): Promise<DbFile | null> {
+    const [file] = await this.db
+      .update(files)
+      .set({ status: 'ready', updatedAt: new Date() })
+      .where(and(eq(files.id, fileId), eq(files.userId, userId), eq(files.status, 'pending')))
+      .returning();
+    return file ?? null;
+  }
+
+  async findExpiredPending(before: Date): Promise<DbFile[]> {
+    return this.db
+      .select()
+      .from(files)
+      .where(and(eq(files.status, 'pending'), lt(files.createdAt, before)));
   }
 }

@@ -90,7 +90,7 @@ This file provides GitHub Copilot with the context needed to give accurate, rele
 ## File and Job Status Values
 
 **File status:** `pending` | `ready` | `deleted`
-**Job status:** `pending` | `processing` | `completed` | `failed`
+**Job status:** `pending` | `active` | `completed` | `failed`
 
 ---
 

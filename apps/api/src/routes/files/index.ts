@@ -2,29 +2,28 @@ import type { FastifyInstance } from 'fastify';
 
 import { authenticate } from '../../plugins/authenticate.js';
 import type { FileService } from '../../services/FileService.js';
-import { badRequest } from '../../utils/errors.js';
-import { fileByIdSchema, listFilesSchema } from './schemas.js';
+import { createUploadUrlSchema, fileByIdSchema, listFilesSchema } from './schemas.js';
 
 export function fileRoutes(service: FileService) {
   return function routes(app: FastifyInstance) {
     // All file routes require a valid access token.
     app.addHook('preHandler', authenticate);
 
-    // ─── POST /files ──────────────────────────────────────────────────────────
-    // Upload a file via multipart/form-data.
-    // Field name must be "file".
-    app.post('/', async (request, reply) => {
-      const data = await request.file();
-      if (!data) {
-        throw badRequest('NO_FILE', 'Request must include a file field');
-      }
+    // ─── POST /files/upload-url ────────────────────────────────────────────────
+    // Reserves a "pending" file record and returns a presigned MinIO POST policy.
+    // The browser uploads directly to storage, bypassing the API server.
+    app.post('/upload-url', { schema: createUploadUrlSchema }, async (request, reply) => {
+      const body = request.body as { filename: string; mimeType: string; size: number };
+      const result = await service.createUploadUrl(request.userId, body);
+      return reply.status(201).send({ data: result });
+    });
 
-      const file = await service.upload(request.userId, {
-        filename: data.filename,
-        mimetype: data.mimetype,
-        file: data.file,
-      });
-      return reply.status(201).send({ data: file });
+    // ─── POST /files/:id/confirm-upload ────────────────────────────────────────
+    // Verifies the uploaded object exists in storage and marks the file "ready".
+    app.post('/:id/confirm-upload', { schema: fileByIdSchema }, async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const file = await service.confirmUpload(request.userId, id);
+      return reply.send({ data: file });
     });
 
     // ─── GET /files ───────────────────────────────────────────────────────────

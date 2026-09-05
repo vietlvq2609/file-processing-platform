@@ -38,6 +38,8 @@ const EnvSchema = z.object({
     .int()
     .positive()
     .default(50 * 1024 * 1024), // 50 MB
+  // TTL for presigned upload URLs handed to the browser.
+  PRESIGNED_URL_TTL_SECONDS: z.coerce.number().int().positive().default(900), // 15 min
 
   // ── MinIO ─────────────────────────────────────────────────────────────────
   MINIO_ENDPOINT: z.string().default('localhost'),
@@ -49,6 +51,10 @@ const EnvSchema = z.object({
   MINIO_ACCESS_KEY: z.string().min(1).default('minioadmin'),
   MINIO_SECRET_KEY: z.string().min(1).default('minioadmin'),
   MINIO_BUCKET: z.string().min(1).default('uploads'),
+  // Browser-facing MinIO origin. The client SDK is configured with the internal
+  // Docker hostname (MINIO_ENDPOINT), which is unreachable from the browser —
+  // presigned URLs must be rewritten to this origin before being returned.
+  MINIO_PUBLIC_URL: z.string().url().default('http://localhost:3004'),
 });
 
 function parseConfig() {
@@ -90,6 +96,7 @@ export const config = {
   },
   upload: {
     maxFileSizeBytes: env.MAX_FILE_SIZE_BYTES,
+    presignedUrlTtlSeconds: env.PRESIGNED_URL_TTL_SECONDS,
   },
   minio: {
     endPoint: env.MINIO_ENDPOINT,
@@ -98,6 +105,7 @@ export const config = {
     accessKey: env.MINIO_ACCESS_KEY,
     secretKey: env.MINIO_SECRET_KEY,
     bucket: env.MINIO_BUCKET,
+    publicUrl: env.MINIO_PUBLIC_URL,
   },
   redis: {
     url: env.REDIS_URL,

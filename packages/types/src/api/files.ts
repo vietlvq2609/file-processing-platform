@@ -1,10 +1,33 @@
 import type { File } from '../domain.js';
 import type { ApiListResponse, ApiResponse } from './common.js';
 
-// ─── POST /files (multipart/form-data) ───────────────────────────────────────
-// Request: FormData with a "file" field — no TypeScript shape needed.
+// ─── POST /files/upload-url ──────────────────────────────────────────────────
+// Reserves a file record in "pending" status and returns a presigned MinIO
+// POST policy the browser uploads directly to, bypassing the API server.
 
-export type UploadFileResponse = ApiResponse<File>;
+export interface CreateUploadUrlRequest {
+  filename: string;
+  mimeType: string;
+  /** Declared size in bytes. Validated against MAX_FILE_SIZE_BYTES and re-verified on confirm. */
+  size: number;
+}
+
+export type PresignedUploadFormFields = Record<string, string>;
+
+export interface CreateUploadUrlData {
+  fileId: string;
+  uploadUrl: string;
+  formFields: PresignedUploadFormFields;
+  expiresAt: string;
+}
+
+export type CreateUploadUrlResponse = ApiResponse<CreateUploadUrlData>;
+
+// ─── POST /files/:id/confirm-upload ──────────────────────────────────────────
+// Request: no body — file id comes from the route param.
+// Verifies the uploaded object exists in storage before marking the file "ready".
+
+export type ConfirmUploadResponse = ApiResponse<File>;
 
 // ─── GET /files ──────────────────────────────────────────────────────────────
 
