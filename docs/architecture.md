@@ -6,47 +6,53 @@ This document describes the system topology, service responsibilities, key desig
 
 ## System Topology
 
+```mermaid
+flowchart TB
+    classDef frontend fill:#61DAFB,stroke:#1b6a80,color:#0b2b33,font-weight:bold
+    classDef backend fill:#2f855a,stroke:#1c4532,color:#ffffff,font-weight:bold
+    classDef infra fill:#ed8936,stroke:#7b341e,color:#ffffff,font-weight:bold
+    classDef data fill:#4169E1,stroke:#1a2f6b,color:#ffffff,font-weight:bold
+
+    Browser["Browser<br/>React SPA · TanStack Query · Zustand · Axios · WebSocket"]:::frontend
+    Nginx["Nginx (Reverse Proxy)<br/>/api/* → API · /ws → API · / → React build"]:::infra
+    API["API Server (Fastify + TS)<br/>Auth · File · Job routes · WS manager"]:::backend
+    Worker["Worker Service (BullMQ Consumer)<br/>Processes jobs · Publishes progress · Updates DB"]:::backend
+    PG[("PostgreSQL")]:::data
+    Redis[("Redis<br/>Queue + Pub/Sub")]:::data
+    MinIO[("MinIO / File Storage<br/>S3-compatible")]:::data
+
+    Browser -- "HTTP / WebSocket" --> Nginx
+    Nginx --> API
+    API --> PG
+    API -- "read / write" --> MinIO
+    API <--> Redis
+    Redis <--> Worker
+    Worker --> PG
+    Worker -- "read / write" --> MinIO
+    Worker -. "progress via Pub/Sub → API → Browser" .-> API
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  Browser                                                        │
-│  React SPA · TanStack Query · Zustand · Axios · WebSocket       │
-└───────────────────────┬─────────────────────────────────────────┘
-                        │  HTTP / WebSocket
-                        ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  Nginx (Reverse Proxy)                                          │
-│  · /api/*  → API Server                                         │
-│  · /ws     → API Server (WebSocket upgrade)                     │
-│  · /       → React build (static)                               │
-└───────────────────────┬─────────────────────────────────────────┘
-                        │
-          ┌─────────────┴─────────────┐
-          │                           │
-          ▼                           ▼
-┌──────────────────┐       ┌──────────────────────┐
-│  API Server      │       │  MinIO / File Storage │
-│  Fastify + TS    │       │  S3-compatible store  │
-│  · Auth routes   │       └──────────────────────┘
-│  · File routes   │                  ▲
-│  · Job routes    │                  │ read / write
-│  · WS manager    │                  │
-└────────┬─────────┘                  │
-         │                            │
-    ┌────┴────┐                       │
-    ▼         ▼                       │
-┌───────┐  ┌──────┐                   │
-│  PG   │  │Redis │                   │
-│  DB   │  │Queue │                   │
-└───────┘  └──┬───┘                   │
-              │                       │
-              ▼                       │
-┌─────────────────────────┐           │
-│  Worker Service         │───────────┘
-│  BullMQ Consumer        │
-│  · Processes jobs       │
-│  · Publishes progress   │  via Redis Pub/Sub → API Server → Browser
-│  · Updates DB status    │
-└─────────────────────────┘
+
+---
+
+## Repository Structure
+
+```
+file-processing-platform/
+├── apps/
+│   ├── api/          Fastify API server
+│   ├── web/          React SPA (Vite)
+│   └── worker/       BullMQ worker service
+├── packages/
+│   ├── db/           Drizzle schema, migrations, repositories, db client
+│   └── types/        Shared TypeScript domain types and API contracts
+├── infra/
+│   ├── docker/       Dockerfiles and entrypoint scripts
+│   ├── nginx/        Nginx reverse-proxy config
+│   └── postgres/     DB init scripts and dev seed data
+├── docs/             Architecture, API reference, and deployment guides
+├── .env.example      Required environment variables (copy to .env)
+├── docker-compose.yml         Local development (hot reload, volume mounts)
+└── docker-compose.build.yml   Production-like build
 ```
 
 ---
@@ -100,17 +106,11 @@ All database access goes through repository classes in `packages/db/src/reposito
 
 ## Backend Layer Responsibilities
 
-```
-Route Handler
-    │  parse & validate HTTP request (Fastify JSON schema)
-    ▼
-Service
-    │  orchestrate business logic, throw typed domain errors
-    ▼
-Repository
-    │  SQL queries only, return typed domain objects
-    ▼
-PostgreSQL / Redis / MinIO
+```mermaid
+flowchart TD
+    A["Route Handler<br/>parse & validate HTTP request (Fastify JSON schema)"] --> B
+    B["Service<br/>orchestrate business logic, throw typed domain errors"] --> C
+    C["Repository<br/>SQL queries only, return typed domain objects"] --> D[("PostgreSQL / Redis / MinIO")]
 ```
 
 ---
@@ -119,14 +119,17 @@ PostgreSQL / Redis / MinIO
 
 ### 1. Authentication
 
-```
-Browser                  API Server               PostgreSQL
-  │── POST /api/v1/auth/login ──────▶              │
-  │                          │── SELECT user ──────▶│
-  │                          │◀─ user row ───────────│
-  │                          │  verify bcrypt hash   │
-  │◀── { accessToken,        │                       │
-  │      refreshToken }      │                       │
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant API as API Server
+    participant DB as PostgreSQL
+
+    Browser->>API: POST /api/v1/auth/login
+    API->>DB: SELECT user
+    DB-->>API: user row
+    API->>API: verify bcrypt hash
+    API-->>Browser: { accessToken, refreshToken }
 ```
 
 - Access token: short-lived JWT (15 min), stored in Zustand memory store
@@ -134,40 +137,53 @@ Browser                  API Server               PostgreSQL
 
 ### 2. File Upload
 
-```
-Browser             API Server          PostgreSQL     MinIO
-  │── POST /api/v1/files (multipart) ──▶│              │
-  │                   │── INSERT file ──▶│              │
-  │                   │── write bytes ──────────────────▶│
-  │◀── 201 { file } ──│                 │              │
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant API as API Server
+    participant DB as PostgreSQL
+    participant S as MinIO
+
+    Browser->>API: POST /api/v1/files (multipart)
+    API->>DB: INSERT file
+    API->>S: write bytes
+    API-->>Browser: 201 { file }
 ```
 
 ### 3. Job Submission and Processing
 
-```
-Browser    API Server    PostgreSQL    Redis (BullMQ)    Worker    MinIO
-  │─POST /jobs──▶│           │               │              │        │
-  │              │─INSERT──▶│               │              │        │
-  │              │─ENQUEUE─────────────────────▶           │        │
-  │◀─201 {job}──│           │               │              │        │
-  │              │           │               │◀─CONSUME job─│        │
-  │              │           │               │              │─read──▶│
-  │              │           │               │              │ process│
-  │              │           │               │              │─write─▶│
-  │              │           │◀─UPDATE job───│              │        │
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant API as API Server
+    participant DB as PostgreSQL
+    participant Q as Redis (BullMQ)
+    participant W as Worker
+    participant S as MinIO
+
+    Browser->>API: POST /jobs
+    API->>DB: INSERT job
+    API->>Q: ENQUEUE
+    API-->>Browser: 201 { job }
+    Q->>W: CONSUME job
+    W->>S: read
+    W->>W: process
+    W->>S: write
+    W->>DB: UPDATE job
 ```
 
 ### 4. Real-Time Progress
 
-```
-Worker    Redis Pub/Sub    API Server    Browser (WebSocket)
-  │─PUBLISH ─────▶             │                │
-  │  progress event│            │                │
-  │                │─notify────▶│                │
-  │                │            │─WS push───────▶│
-  │                │            │  { jobId,      │
-  │                │            │    progress,   │
-  │                │            │    status }    │
+```mermaid
+sequenceDiagram
+    participant W as Worker
+    participant Q as Redis Pub/Sub
+    participant API as API Server
+    participant Browser as Browser (WebSocket)
+
+    W->>Q: PUBLISH progress event
+    Q->>API: notify
+    API->>Browser: WS push { jobId, progress, status }
 ```
 
 ---
@@ -176,8 +192,11 @@ Worker    Redis Pub/Sub    API Server    Browser (WebSocket)
 
 ### Entity Relationships
 
-```
-users ──< files ──< jobs
+```mermaid
+erDiagram
+    USERS ||--o{ FILES : owns
+    USERS ||--o{ JOBS : owns
+    FILES ||--o{ JOBS : "processed by"
 ```
 
 ### Core Tables
@@ -226,15 +245,21 @@ users ──< files ──< jobs
 ### Status State Machines
 
 **File status:**
-```
-uploaded → ready
-         → deleted
+```mermaid
+stateDiagram-v2
+    [*] --> pending
+    pending --> ready
+    ready --> deleted
+    pending --> deleted
 ```
 
 **Job status:**
-```
-pending → processing → completed
-                    → failed
+```mermaid
+stateDiagram-v2
+    [*] --> pending
+    pending --> processing
+    processing --> completed
+    processing --> failed
 ```
 
 ---
