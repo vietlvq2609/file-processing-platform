@@ -45,7 +45,7 @@ COPY packages/db/package.json       ./packages/db/
 COPY packages/types/package.json    ./packages/types/
 
 # Production-only install (no devDependencies).
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts
 
 # Copy compiled output from the builder stage.
 COPY --from=builder /app/apps/api/dist        ./apps/api/dist

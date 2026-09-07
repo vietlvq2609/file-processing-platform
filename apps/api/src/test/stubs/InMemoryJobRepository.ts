@@ -13,6 +13,7 @@ export class InMemoryJobRepository implements IJobRepository {
       status: data.status ?? 'pending',
       progress: data.progress ?? 0,
       outputPath: data.outputPath ?? null,
+      outputFileId: data.outputFileId ?? null,
       errorMessage: data.errorMessage ?? null,
       createdAt: data.createdAt ?? new Date(),
       updatedAt: data.updatedAt ?? new Date(),

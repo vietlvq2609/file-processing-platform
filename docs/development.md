@@ -53,7 +53,13 @@ docker compose up
 
 On first run this builds the dev image (≈1–2 minutes). Subsequent starts are fast.
 
-The API automatically runs pending migrations on startup.
+Migrations are **not** run automatically in dev mode. Apply them manually after containers are up:
+
+```bash
+docker compose exec api pnpm --filter @fpp/db migrate
+```
+
+(Production, via `docker-compose.build.yml`, runs migrations automatically on API startup through its entrypoint script.)
 
 ### Option B — Native processes (faster iteration)
 

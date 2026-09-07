@@ -15,6 +15,28 @@ The platform ships with two Docker Compose files:
 
 ---
 
+## Server Provisioning (Ubuntu 24.04 LTS)
+
+If you're starting from a bare VPS, install Docker Engine and the Compose plugin before anything else:
+
+```bash
+# Install Docker Engine + Compose plugin from Docker's official apt repo
+curl -fsSL https://get.docker.com | sh
+
+# Run docker without sudo (log out/in for this to take effect)
+sudo usermod -aG docker $USER
+
+# Firewall — only allow SSH and HTTP(S)
+sudo ufw allow OpenSSH
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw enable
+```
+
+Verify with `docker compose version` — Ubuntu 24.04 ships a recent enough kernel/cgroup v2 setup for this stack out of the box, no extra tuning needed.
+
+---
+
 ## Building for Production
 
 ```bash
@@ -45,6 +67,8 @@ cp .env.example .env
 | `JWT_REFRESH_SECRET` | Generate a second, different secret |
 | `POSTGRES_PASSWORD` | Set a strong database password |
 | `MINIO_SECRET_KEY` | Set a strong MinIO password |
+| `MINIO_PUBLIC_URL` | Set to your public domain/IP (e.g. `https://example.com`) — the browser uploads files directly to MinIO through the `/uploads/` nginx route, so this must be reachable from the client |
+| `CORS_ORIGIN` | Set to your public domain (e.g. `https://example.com`) |
 | `NODE_ENV` | Set to `production` |
 
 **Docker Compose automatically overrides** the following to use Docker service hostnames — you do not need separate `.env` files for Docker vs. local:
@@ -78,6 +102,7 @@ Nginx acts as the single entry point:
 GET /           → Serve React build from /usr/share/nginx/html
 GET /api/*      → Proxy to http://api:3001
 GET /ws         → Proxy to http://api:3001/ws  (WebSocket upgrade)
+POST /uploads/* → Proxy to http://minio:9000/uploads/  (direct browser upload)
 ```
 
 The configuration is in `infra/docker/nginx.conf`. Key settings:
@@ -85,6 +110,7 @@ The configuration is in `infra/docker/nginx.conf`. Key settings:
 - `client_max_body_size` must match `MAX_FILE_SIZE_BYTES`
 - WebSocket proxying requires `proxy_http_version 1.1` and the `Upgrade`/`Connection` headers
 - Gzip compression is enabled for static assets
+- The `/uploads/` location name must match `MINIO_BUCKET` — update both together if you rename the bucket
 
 ---
 
