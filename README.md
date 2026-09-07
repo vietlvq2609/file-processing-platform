@@ -19,6 +19,10 @@
   <img alt="License" src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" />
 </p>
 
+<p align="center">
+  <a href="https://viktorlab.io.vn/"><strong>🔗 Live Demo</strong></a>
+</p>
+
 > [!NOTE]
 > **Portfolio project** — built to showcase async architecture, real-time communication, and clean separation of concerns rather than business complexity.
 
