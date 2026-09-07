@@ -39,7 +39,9 @@ services:
       - app_network
 
   minio:
-    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    # -cpuv1 variant: this deployment's VPS vCPU doesn't expose x86-64-v2
+    # instructions (SSE4.2/POPCNT), which standard MinIO images require.
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1
     container_name: fpp-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
