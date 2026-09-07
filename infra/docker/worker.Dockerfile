@@ -36,7 +36,7 @@ COPY apps/worker/package.json    ./apps/worker/
 COPY packages/db/package.json    ./packages/db/
 COPY packages/types/package.json ./packages/types/
 
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts
 
 COPY --from=builder /app/apps/worker/dist   ./apps/worker/dist
 COPY --from=builder /app/packages/db/dist   ./packages/db/dist

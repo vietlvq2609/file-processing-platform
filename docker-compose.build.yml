@@ -39,7 +39,7 @@ services:
       - app_network
 
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
     container_name: fpp-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -69,11 +69,15 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-file-processing-platform-db}
       REDIS_URL: redis://redis:6379
       MINIO_ENDPOINT: minio
+      # .env's MINIO_PORT is the host-exposed debug port; MinIO listens on 9000 internally.
+      MINIO_PORT: 9000
       # Set CORS_ORIGIN to your public domain. Behind nginx it can be omitted
       # since all traffic is same-origin, but it is kept for direct API access.
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/healthz || exit 1"]
+      # 127.0.0.1, not localhost: this musl/Alpine image resolves localhost to
+      # ::1 first, but the server only binds IPv4, causing a false failure.
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3001/healthz || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -100,6 +104,8 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-file-processing-platform-db}
       REDIS_URL: redis://redis:6379
       MINIO_ENDPOINT: minio
+      # .env's MINIO_PORT is the host-exposed debug port; MinIO listens on 9000 internally.
+      MINIO_PORT: 9000
     depends_on:
       # Wait for the API to be healthy so migrations are guaranteed to have run.
       api:

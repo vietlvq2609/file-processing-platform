@@ -37,6 +37,7 @@ export function buildJob(overrides?: Partial<DbJob>): DbJob {
     status: 'pending',
     progress: 0,
     outputPath: null,
+    outputFileId: null,
     errorMessage: null,
     createdAt: new Date('2024-01-01T00:00:00Z'),
     updatedAt: new Date('2024-01-01T00:00:00Z'),
