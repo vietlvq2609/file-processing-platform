@@ -9,15 +9,26 @@
   across a React frontend, Fastify API, background worker, and multi-container Docker infrastructure.
 </p>
 
-<p align="center">
-  <img alt="React" src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white&style=flat-square" />
-  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white&style=flat-square" />
-  <img alt="Fastify" src="https://img.shields.io/badge/Fastify-v5-000000?logo=fastify&logoColor=white&style=flat-square" />
-  <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white&style=flat-square" />
-  <img alt="Redis" src="https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white&style=flat-square" />
-  <img alt="Docker" src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white&style=flat-square" />
+<div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+  <img alt="React" src="https://img.shields.io/badge/React_18-61DAFB?logo=react&logoColor=white&style=flat-square" />
+  <img alt="Fastify" src="https://img.shields.io/badge/Fastify_v5-000000?logo=fastify&logoColor=white&style=flat-square" />
+  <img alt="Nginx" src="https://img.shields.io/badge/Nginx-009639?logo=nginx&logoColor=white&style=flat-square" />
+  <img alt="Docker" src="https://img.shields.io/badge/Docker_Compose-2496ED?logo=docker&logoColor=white&style=flat-square" />
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white&style=flat-square" />
+  <img alt="BullMQ" src="https://img.shields.io/badge/BullMQ-DC382D?logo=redis&logoColor=white&style=flat-square" />
+  <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL_16-4169E1?logo=postgresql&logoColor=white&style=flat-square" />
+  <img alt="Drizzle ORM" src="https://img.shields.io/badge/Drizzle_ORM-C5F74F?logo=drizzle&logoColor=black&style=flat-square" />
+  <img alt="Node.js" src="https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white&style=flat-square" />
+  <img alt="TanStack Query" src="https://img.shields.io/badge/TanStack_Query_v5-FF4154?logo=reactquery&logoColor=white&style=flat-square" />
+  <img alt="Zustand" src="https://img.shields.io/badge/Zustand_v5-433E38?style=flat-square" />
+  <img alt="Axios" src="https://img.shields.io/badge/Axios-5A29E4?logo=axios&logoColor=white&style=flat-square" />
+  <img alt="Redis" src="https://img.shields.io/badge/Redis_7-DC382D?logo=redis&logoColor=white&style=flat-square" />
+  <img alt="MinIO" src="https://img.shields.io/badge/MinIO-C72E49?logo=minio&logoColor=white&style=flat-square" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white&style=flat-square" />
+  <img alt="React Router" src="https://img.shields.io/badge/React_Router_v6-CA4245?logo=reactrouter&logoColor=white&style=flat-square" />
+  <img alt="pnpm" src="https://img.shields.io/badge/pnpm_workspaces-F69220?logo=pnpm&logoColor=white&style=flat-square" />
   <img alt="License" src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" />
-</p>
+</div>
 
 <p align="center">
   <a href="https://viktorlab.io.vn/"><strong>🔗 Live Demo</strong></a>
@@ -115,31 +126,6 @@ sequenceDiagram
     API-->>Web: WS push { jobId, progress, status }
     Web-->>User: Live progress bar update
 ```
-
----
-
-## Tech Stack
-
-<img alt="React" src="https://img.shields.io/badge/React_18-61DAFB?logo=react&logoColor=white&style=flat-square" />
-<img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white&style=flat-square" />
-<img alt="React Router" src="https://img.shields.io/badge/React_Router_v6-CA4245?logo=reactrouter&logoColor=white&style=flat-square" />
-<img alt="TanStack Query" src="https://img.shields.io/badge/TanStack_Query_v5-FF4154?logo=reactquery&logoColor=white&style=flat-square" />
-<img alt="Zustand" src="https://img.shields.io/badge/Zustand_v5-433E38?style=flat-square" />
-<img alt="Axios" src="https://img.shields.io/badge/Axios-5A29E4?logo=axios&logoColor=white&style=flat-square" />
-<img alt="Vite" src="https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white&style=flat-square" />
-<img alt="Node.js" src="https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white&style=flat-square" />
-<img alt="Fastify" src="https://img.shields.io/badge/Fastify_v5-000000?logo=fastify&logoColor=white&style=flat-square" />
-<img alt="Drizzle ORM" src="https://img.shields.io/badge/Drizzle_ORM-C5F74F?logo=drizzle&logoColor=black&style=flat-square" />
-<img alt="BullMQ" src="https://img.shields.io/badge/BullMQ-DC382D?logo=redis&logoColor=white&style=flat-square" />
-<img alt="ws" src="https://img.shields.io/badge/ws-WebSocket-black?style=flat-square" />
-<img alt="JWT" src="https://img.shields.io/badge/JWT-black?logo=jsonwebtokens&logoColor=white&style=flat-square" />
-<img alt="ioredis" src="https://img.shields.io/badge/ioredis-DC382D?logo=redis&logoColor=white&style=flat-square" />
-<img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL_16-4169E1?logo=postgresql&logoColor=white&style=flat-square" />
-<img alt="Redis" src="https://img.shields.io/badge/Redis_7-DC382D?logo=redis&logoColor=white&style=flat-square" />
-<img alt="MinIO" src="https://img.shields.io/badge/MinIO-C72E49?logo=minio&logoColor=white&style=flat-square" />
-<img alt="Docker" src="https://img.shields.io/badge/Docker_Compose-2496ED?logo=docker&logoColor=white&style=flat-square" />
-<img alt="Nginx" src="https://img.shields.io/badge/Nginx-009639?logo=nginx&logoColor=white&style=flat-square" />
-<img alt="pnpm" src="https://img.shields.io/badge/pnpm_workspaces-F69220?logo=pnpm&logoColor=white&style=flat-square" />
 
 ---
 
