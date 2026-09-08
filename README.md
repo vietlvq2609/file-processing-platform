@@ -120,8 +120,6 @@ sequenceDiagram
 
 ## Tech Stack
 
-**Frontend**
-<br/>
 <img alt="React" src="https://img.shields.io/badge/React_18-61DAFB?logo=react&logoColor=white&style=flat-square" />
 <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white&style=flat-square" />
 <img alt="React Router" src="https://img.shields.io/badge/React_Router_v6-CA4245?logo=reactrouter&logoColor=white&style=flat-square" />
@@ -129,25 +127,13 @@ sequenceDiagram
 <img alt="Zustand" src="https://img.shields.io/badge/Zustand_v5-433E38?style=flat-square" />
 <img alt="Axios" src="https://img.shields.io/badge/Axios-5A29E4?logo=axios&logoColor=white&style=flat-square" />
 <img alt="Vite" src="https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white&style=flat-square" />
-
-**API Server**
-<br/>
 <img alt="Node.js" src="https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white&style=flat-square" />
 <img alt="Fastify" src="https://img.shields.io/badge/Fastify_v5-000000?logo=fastify&logoColor=white&style=flat-square" />
 <img alt="Drizzle ORM" src="https://img.shields.io/badge/Drizzle_ORM-C5F74F?logo=drizzle&logoColor=black&style=flat-square" />
 <img alt="BullMQ" src="https://img.shields.io/badge/BullMQ-DC382D?logo=redis&logoColor=white&style=flat-square" />
 <img alt="ws" src="https://img.shields.io/badge/ws-WebSocket-black?style=flat-square" />
 <img alt="JWT" src="https://img.shields.io/badge/JWT-black?logo=jsonwebtokens&logoColor=white&style=flat-square" />
-
-**Worker**
-<br/>
-<img alt="Node.js" src="https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white&style=flat-square" />
-<img alt="BullMQ" src="https://img.shields.io/badge/BullMQ-DC382D?logo=redis&logoColor=white&style=flat-square" />
-<img alt="Drizzle ORM" src="https://img.shields.io/badge/Drizzle_ORM-C5F74F?logo=drizzle&logoColor=black&style=flat-square" />
 <img alt="ioredis" src="https://img.shields.io/badge/ioredis-DC382D?logo=redis&logoColor=white&style=flat-square" />
-
-**Infrastructure**
-<br/>
 <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL_16-4169E1?logo=postgresql&logoColor=white&style=flat-square" />
 <img alt="Redis" src="https://img.shields.io/badge/Redis_7-DC382D?logo=redis&logoColor=white&style=flat-square" />
 <img alt="MinIO" src="https://img.shields.io/badge/MinIO-C72E49?logo=minio&logoColor=white&style=flat-square" />
