@@ -1,7 +1,6 @@
 import { integer, pgEnum, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 
 import { files } from './files.js';
-import { users } from './users.js';
 
 export const jobStatusEnum = pgEnum('job_status', ['pending', 'active', 'completed', 'failed']);
 
@@ -10,9 +9,8 @@ export const jobs = pgTable('jobs', {
   fileId: uuid('file_id')
     .notNull()
     .references(() => files.id, { onDelete: 'cascade' }),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
+  // No FK to users.id: guest sessions are stateless JWTs with no persisted user row.
+  userId: uuid('user_id').notNull(),
   type: varchar('type', { length: 63 }).notNull().default('default'),
   status: jobStatusEnum('status').notNull().default('pending'),
   progress: integer('progress').notNull().default(0),

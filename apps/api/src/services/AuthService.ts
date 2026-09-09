@@ -42,8 +42,8 @@ export class AuthService {
     private readonly cfg: AuthServiceConfig
   ) {}
 
-  private signAccessToken(userId: string): string {
-    return jwt.sign({ sub: userId }, this.cfg.accessSecret, {
+  private signAccessToken(userId: string, role?: 'guest'): string {
+    return jwt.sign({ sub: userId, ...(role ? { role } : {}) }, this.cfg.accessSecret, {
       expiresIn: this.cfg.accessTtlSeconds,
     });
   }
@@ -129,10 +129,9 @@ export class AuthService {
     await this.repo.setRefreshTokenHash(userId, null);
   }
 
-  async createGuestSession(): Promise<{ accessToken: string }> {
-    const id = randomUUID();
-    await this.repo.createGuest(id);
-    return { accessToken: this.signAccessToken(id) };
+  createGuestSession(): Promise<{ accessToken: string }> {
+    const id = randomUUID(); // ephemeral ID, never persisted
+    return Promise.resolve({ accessToken: this.signAccessToken(id, 'guest') });
   }
 
   async me(userId: string): Promise<PublicUser> {

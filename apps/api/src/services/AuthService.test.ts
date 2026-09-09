@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { InMemoryUserRepository } from '../test/stubs/InMemoryUserRepository.js';
@@ -102,6 +103,32 @@ describe('AuthService', () => {
 
       const stored = await repo.findById(user.id);
       expect(stored?.refreshTokenHash).toBeNull();
+    });
+  });
+
+  describe('createGuestSession()', () => {
+    it('issues an access token without persisting a user row', async () => {
+      const { accessToken } = await service.createGuestSession();
+
+      const payload = jwt.verify(accessToken, testConfig.accessSecret) as jwt.JwtPayload;
+      expect(payload.role).toBe('guest');
+      expect(typeof payload.sub).toBe('string');
+
+      const stored = await repo.findById(payload.sub as string);
+      expect(stored).toBeNull();
+    });
+
+    it('issues a distinct ephemeral id on every call', async () => {
+      const first = await service.createGuestSession();
+      const second = await service.createGuestSession();
+
+      const firstPayload = jwt.verify(first.accessToken, testConfig.accessSecret) as jwt.JwtPayload;
+      const secondPayload = jwt.verify(
+        second.accessToken,
+        testConfig.accessSecret
+      ) as jwt.JwtPayload;
+
+      expect(firstPayload.sub).not.toBe(secondPayload.sub);
     });
   });
 });

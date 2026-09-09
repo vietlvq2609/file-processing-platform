@@ -1,8 +1,8 @@
-import { and, count, desc, eq, ilike, lt, ne } from 'drizzle-orm';
+import { and, count, desc, eq, ilike, inArray, isNull, lt, ne, notExists } from 'drizzle-orm';
 
 import type { DrizzleClient } from '../client.js';
 import type { File as DbFile, NewFile } from '../schema/index.js';
-import { files } from '../schema/index.js';
+import { files, jobs, users } from '../schema/index.js';
 
 export interface ListOptions {
   page: number;
@@ -19,6 +19,14 @@ export interface IFileRepository {
   markReady(userId: string, fileId: string): Promise<DbFile | null>;
   /** Finds "pending" files reserved before the given cutoff — candidates for cleanup. */
   findExpiredPending(before: Date): Promise<DbFile[]>;
+  /**
+   * Finds "ready" files owned by a guest (no matching row in `users`, since guest
+   * sessions are stateless JWTs) that finished before the given cutoff. Excludes any
+   * file still referenced by a pending/active job so in-flight processing is never swept.
+   */
+  findExpiredGuestFiles(before: Date): Promise<DbFile[]>;
+  /** Permanently removes a file row — used by the guest resource cleanup sweep. */
+  hardDelete(userId: string, fileId: string): Promise<void>;
 }
 
 export class FileRepository implements IFileRepository {
@@ -92,5 +100,30 @@ export class FileRepository implements IFileRepository {
       .select()
       .from(files)
       .where(and(eq(files.status, 'pending'), lt(files.createdAt, before)));
+  }
+
+  async findExpiredGuestFiles(before: Date): Promise<DbFile[]> {
+    const rows = await this.db
+      .select({ file: files })
+      .from(files)
+      .leftJoin(users, eq(files.userId, users.id))
+      .where(
+        and(
+          isNull(users.id),
+          eq(files.status, 'ready'),
+          lt(files.updatedAt, before),
+          notExists(
+            this.db
+              .select()
+              .from(jobs)
+              .where(and(eq(jobs.fileId, files.id), inArray(jobs.status, ['pending', 'active'])))
+          )
+        )
+      );
+    return rows.map((row) => row.file);
+  }
+
+  async hardDelete(userId: string, fileId: string): Promise<void> {
+    await this.db.delete(files).where(and(eq(files.id, fileId), eq(files.userId, userId)));
   }
 }

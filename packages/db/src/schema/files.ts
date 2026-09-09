@@ -1,14 +1,11 @@
 import { bigint, pgEnum, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 
-import { users } from './users.js';
-
 export const fileStatusEnum = pgEnum('file_status', ['pending', 'ready', 'deleted']);
 
 export const files = pgTable('files', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
+  // No FK to users.id: guest sessions are stateless JWTs with no persisted user row.
+  userId: uuid('user_id').notNull(),
   originalName: varchar('original_name', { length: 255 }).notNull(),
   mimeType: varchar('mime_type', { length: 127 }).notNull(),
   size: bigint('size', { mode: 'number' }).notNull(),

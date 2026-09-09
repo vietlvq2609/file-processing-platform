@@ -2,6 +2,7 @@ import { createDb, FileRepository, JobRepository } from '@fpp/db';
 import { Worker } from 'bullmq';
 import { Redis } from 'ioredis';
 
+import { startGuestResourceCleanup } from './cleanupGuestResources.js';
 import { startPendingUploadCleanup } from './cleanupPendingUploads.js';
 import { config } from './config.js';
 import { logger } from './logger.js';
@@ -24,6 +25,15 @@ export const pendingUploadCleanupHandle = startPendingUploadCleanup(
   config.minio.bucket,
   config.pendingUpload.ttlSeconds,
   config.pendingUpload.cleanupIntervalSeconds,
+  logger
+);
+
+export const guestResourceCleanupHandle = startGuestResourceCleanup(
+  fileRepo,
+  minioClient,
+  config.minio.bucket,
+  config.guestResource.ttlSeconds,
+  config.guestResource.cleanupIntervalSeconds,
   logger
 );
 

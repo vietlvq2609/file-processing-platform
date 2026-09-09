@@ -35,4 +35,5 @@ export async function authenticate(request: FastifyRequest, _reply: FastifyReply
   }
 
   request.userId = userId;
+  request.role = payload.role === 'guest' ? 'guest' : undefined;
 }
