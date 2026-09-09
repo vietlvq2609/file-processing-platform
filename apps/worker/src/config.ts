@@ -24,6 +24,11 @@ const EnvSchema = z.object({
   // before the cleanup sweep removes it.
   PENDING_UPLOAD_TTL_SECONDS: z.coerce.number().int().positive().default(3600), // 1 hour
   PENDING_UPLOAD_CLEANUP_INTERVAL_SECONDS: z.coerce.number().int().positive().default(900), // 15 min
+  // How long a guest-owned (no persisted user row) "ready" file may live after its
+  // last update before the cleanup sweep removes it, bounding storage/DB growth
+  // from anonymous guest sessions.
+  GUEST_RESOURCE_TTL_SECONDS: z.coerce.number().int().positive().default(3600), // 1 hour
+  GUEST_RESOURCE_CLEANUP_INTERVAL_SECONDS: z.coerce.number().int().positive().default(900), // 15 min
 });
 
 function parseConfig() {
@@ -59,5 +64,9 @@ export const config = {
   pendingUpload: {
     ttlSeconds: env.PENDING_UPLOAD_TTL_SECONDS,
     cleanupIntervalSeconds: env.PENDING_UPLOAD_CLEANUP_INTERVAL_SECONDS,
+  },
+  guestResource: {
+    ttlSeconds: env.GUEST_RESOURCE_TTL_SECONDS,
+    cleanupIntervalSeconds: env.GUEST_RESOURCE_CLEANUP_INTERVAL_SECONDS,
   },
 } as const;

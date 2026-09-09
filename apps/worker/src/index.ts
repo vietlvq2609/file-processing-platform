@@ -1,9 +1,10 @@
 import { logger } from './logger.js';
-import { pendingUploadCleanupHandle, worker } from './worker.js';
+import { guestResourceCleanupHandle, pendingUploadCleanupHandle, worker } from './worker.js';
 
 const shutdown = async (signal: string): Promise<void> => {
   logger.info(`${signal} received, shutting down gracefully...`);
   clearInterval(pendingUploadCleanupHandle);
+  clearInterval(guestResourceCleanupHandle);
   await worker.close();
   process.exit(0);
 };

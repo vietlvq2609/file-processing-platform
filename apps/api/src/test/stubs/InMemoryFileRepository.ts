@@ -55,4 +55,17 @@ export class InMemoryFileRepository implements IFileRepository {
     );
     return Promise.resolve(expired);
   }
+
+  findExpiredGuestFiles(before: Date): Promise<DbFile[]> {
+    const expired = Array.from(this.files.values()).filter(
+      (f) => f.status === 'ready' && f.updatedAt < before
+    );
+    return Promise.resolve(expired);
+  }
+
+  hardDelete(userId: string, fileId: string): Promise<void> {
+    const file = this.files.get(fileId);
+    if (file?.userId === userId) this.files.delete(fileId);
+    return Promise.resolve();
+  }
 }

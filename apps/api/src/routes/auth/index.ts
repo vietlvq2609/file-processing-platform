@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 
 import { config } from '../../config.js';
 import { authenticate } from '../../plugins/authenticate.js';
+import { requireRegisteredUser } from '../../plugins/requireRegisteredUser.js';
 import type { AuthService } from '../../services/AuthService.js';
 import {
   changePasswordSchema,
@@ -79,10 +80,11 @@ export function authRoutes(service: AuthService) {
     });
 
     // ─── PUT /auth/password ──────────────────────────────────────────────────
-    // Changes the authenticated user's password. Requires a valid access token.
+    // Changes the authenticated user's password. Requires a valid access token from a
+    // registered account — guests have no password to change.
     app.put<{ Body: { currentPassword: string; newPassword: string } }>(
       '/password',
-      { schema: changePasswordSchema, preHandler: [authenticate] },
+      { schema: changePasswordSchema, preHandler: [authenticate, requireRegisteredUser] },
       async (request, reply) => {
         const { currentPassword, newPassword } = request.body;
         await service.changePassword(request.userId, currentPassword, newPassword);
@@ -91,10 +93,15 @@ export function authRoutes(service: AuthService) {
     );
 
     // ─── POST /auth/guest ────────────────────────────────────────────────────
-    // Issues a short-lived access token for an ephemeral guest user.
-    app.post('/guest', { schema: guestSessionSchema }, async (_request, reply) => {
-      const { accessToken } = await service.createGuestSession();
-      return reply.status(201).send({ data: { accessToken } });
-    });
+    // Issues a short-lived access token for an ephemeral guest user. Rate-limited by
+    // IP to mitigate token-minting abuse since no account is created.
+    app.post(
+      '/guest',
+      { config: { rateLimit: { max: 10, timeWindow: '15 minutes' } }, schema: guestSessionSchema },
+      async (_request, reply) => {
+        const { accessToken } = await service.createGuestSession();
+        return reply.status(201).send({ data: { accessToken } });
+      }
+    );
   };
 }
