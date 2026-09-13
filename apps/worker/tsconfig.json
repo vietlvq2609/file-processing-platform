@@ -12,8 +12,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "@fpp/db": ["../../packages/db/src"],
-      "@fpp/types": ["../../packages/types/src"]
+      "@fpp/db": ["../../packages/db/src/index.ts"],
+      "@fpp/types": ["../../packages/types/src/index.ts"]
     }
   },
   "include": ["src"],
