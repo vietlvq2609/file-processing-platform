@@ -40,6 +40,26 @@ describe('JobService', () => {
         code: 'FILE_NOT_FOUND',
       });
     });
+
+    it('throws ConflictError when file is still pending upload confirmation', async () => {
+      const file = buildFile({ userId: 'user-1', status: 'pending' });
+      await fileRepo.create(file);
+
+      await expect(service.create('user-1', file.id)).rejects.toMatchObject({
+        statusCode: 409,
+        code: 'FILE_NOT_READY',
+      });
+    });
+
+    it('throws NotFoundError when file has been deleted', async () => {
+      const file = buildFile({ userId: 'user-1', status: 'deleted' });
+      await fileRepo.create(file);
+
+      await expect(service.create('user-1', file.id)).rejects.toMatchObject({
+        statusCode: 404,
+        code: 'FILE_NOT_FOUND',
+      });
+    });
   });
 
   describe('cancel()', () => {
