@@ -60,6 +60,9 @@ services:
       - app_network
 
   api:
+    # image: is used by `docker compose pull` on the VPS to fetch the CI-built
+    # image; build: keeps local `docker compose build` working for manual/dev use.
+    image: ghcr.io/vietlvq2609/file-processing-platform-api:latest
     build:
       context: .
       dockerfile: infra/docker/api.Dockerfile
@@ -95,6 +98,7 @@ services:
       - app_network
 
   worker:
+    image: ghcr.io/vietlvq2609/file-processing-platform-worker:latest
     build:
       context: .
       dockerfile: infra/docker/worker.Dockerfile
@@ -118,6 +122,7 @@ services:
       - app_network
 
   web:
+    image: ghcr.io/vietlvq2609/file-processing-platform-web:latest
     build:
       context: .
       dockerfile: infra/docker/web.Dockerfile

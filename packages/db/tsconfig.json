@@ -13,7 +13,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "paths": {
-      "@fpp/types": ["../types/src"]
+      "@fpp/types": ["../types/src/index.ts"]
     }
   },
   "include": ["src/**/*"],

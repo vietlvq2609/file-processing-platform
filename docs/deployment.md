@@ -51,6 +51,28 @@ This runs the full multi-stage builds for the API, Worker, and frontend. The Rea
 
 ---
 
+## Continuous Deployment
+
+Every push to `main` (i.e. every merged PR) triggers [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml):
+
+1. Builds the `api`, `worker`, and `web` images and pushes them to GHCR as `ghcr.io/<owner>/file-processing-platform-<service>:latest`.
+2. SSHes into the VPS, `git reset --hard origin/main`, pulls the freshly pushed images, and runs `docker compose -f docker-compose.build.yml up -d --remove-orphans`.
+
+`docker-compose.build.yml` declares both `image:` (for the VPS to pull) and `build:` (so `docker compose build` still works locally/manually) for `api`, `worker`, and `web`.
+
+**Required repo secrets** (Settings → Secrets and variables → Actions):
+
+| Secret | Purpose |
+|---|---|
+| `VPS_HOST` | VPS hostname/IP |
+| `VPS_USER` | SSH username |
+| `VPS_SSH_KEY` | Private key for that user (public half must be in the VPS user's `~/.ssh/authorized_keys`) |
+| `VPS_DEPLOY_PATH` | Absolute path to the repo clone on the VPS (e.g. `/opt/file-processing-platform`) |
+
+No registry secret is needed — the workflow's own `GITHUB_TOKEN` is used both to push images and, over the SSH connection, to `docker login` on the VPS during the same run.
+
+---
+
 ## Environment Configuration
 
 Copy and configure environment variables before starting:
