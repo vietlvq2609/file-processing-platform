@@ -66,6 +66,8 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-            docker compose -f docker-compose.build.yml pull
-            docker compose -f docker-compose.build.yml up -d --remove-orphans
+            # Only touch the app images — postgres/redis/minio are stateful infra,
+            # started once and left running; they're not part of this pipeline.
+            docker compose -f docker-compose.build.yml pull api worker web
+            docker compose -f docker-compose.build.yml up -d --no-deps api worker web
             docker image prune -f
