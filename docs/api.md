@@ -389,6 +389,7 @@ ws.onmessage = ({ data }) => {
 | `UNAUTHORIZED` | 401 | Missing, invalid, or expired access token |
 | `FORBIDDEN` | 403 | Authenticated user does not own this resource |
 | `FILE_NOT_FOUND` | 404 | File does not exist or has been deleted |
+| `FILE_NOT_READY` | 409 | File upload has not been confirmed yet (`status` is not `ready`) |
 | `JOB_NOT_FOUND` | 404 | Job does not exist |
 | `JOB_NOT_CANCELLABLE` | 409 | Job is not in `pending` state |
 | `FILE_TOO_LARGE` | 400 | Upload exceeds `MAX_FILE_SIZE_BYTES` |

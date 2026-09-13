@@ -1,7 +1,7 @@
 import type { IFileRepository, IJobRepository, Job as DbJob, ListJobOptions } from '@fpp/db';
 import type { Queue } from 'bullmq';
 
-import { badRequest, forbidden, notFound } from '../utils/errors.js';
+import { badRequest, conflict, forbidden, notFound } from '../utils/errors.js';
 
 export interface PaginatedJobs {
   data: DbJob[];
@@ -30,6 +30,10 @@ export class JobService {
     const file = await this.fileRepo.findById(userId, fileId);
     if (!file || file.status === 'deleted') {
       throw notFound('FILE_NOT_FOUND', 'File not found');
+    }
+    // Files stay 'pending' until upload is confirmed; only 'ready' files can be processed
+    if (file.status !== 'ready') {
+      throw conflict('FILE_NOT_READY', 'File is not ready for processing');
     }
 
     const job = await this.jobRepo.create({ userId, fileId, type, status: 'pending', progress: 0 });
