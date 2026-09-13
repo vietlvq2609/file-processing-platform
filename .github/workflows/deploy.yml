@@ -51,6 +51,7 @@ jobs:
     name: Deploy to VPS
     needs: build-and-push
     runs-on: ubuntu-latest
+    environment: production
     steps:
       # Pinned to the v1.2.5 release commit (not a mutable tag) since this action
       # runs arbitrary commands over SSH with production credentials.
