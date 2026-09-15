@@ -31,7 +31,7 @@
 </div>
 
 <p align="center">
-  <a href="https://viktorlab.io.vn/"><strong>🔗 Live Demo</strong></a>
+  <a href="https://file-processing-platform.viktorlab.io.vn/"><strong>🔗 Live Demo</strong></a>
 </p>
 
 > [!NOTE]
