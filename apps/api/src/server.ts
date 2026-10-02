@@ -55,6 +55,16 @@ export async function buildApp() {
         description:
           'API for file uploads, job processing, and authentication for the File Processing Platform.',
       },
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+        },
+      },
+      security: [{ bearerAuth: [] }],
       servers: [{ url: '/', description: 'Current host' }],
       tags: [
         { name: 'Auth', description: 'Authentication and token refresh' },
