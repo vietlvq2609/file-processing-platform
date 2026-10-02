@@ -28,7 +28,7 @@ export function authRoutes(service: AuthService) {
     // Creates a new user account and immediately issues tokens.
     app.post<{ Body: { email: string; password: string } }>(
       '/register',
-      { schema: registerSchema },
+      { schema: { ...registerSchema, tags: ['Auth'] } },
       async (request, reply) => {
         const { email, password } = request.body;
         const { user, accessToken, refreshToken } = await service.register(email, password);
@@ -41,7 +41,7 @@ export function authRoutes(service: AuthService) {
     // Authenticates an existing user and issues new tokens.
     app.post<{ Body: { email: string; password: string } }>(
       '/login',
-      { schema: loginSchema },
+      { schema: { ...loginSchema, tags: ['Auth'] } },
       async (request, reply) => {
         const { email, password } = request.body;
         const { user, accessToken, refreshToken } = await service.login(email, password);
@@ -53,7 +53,7 @@ export function authRoutes(service: AuthService) {
     // ─── POST /auth/refresh ──────────────────────────────────────────────────
     // Issues a new access token using the refresh token from the httpOnly cookie.
     // No request body required — the cookie is sent automatically by the browser.
-    app.post('/refresh', async (request, reply) => {
+    app.post('/refresh', { schema: { tags: ['Auth'] } }, async (request, reply) => {
       const token = request.cookies[REFRESH_COOKIE];
       if (!token) {
         return reply.status(401).send({
@@ -66,25 +66,36 @@ export function authRoutes(service: AuthService) {
 
     // ─── POST /auth/logout ───────────────────────────────────────────────────
     // Revokes the current session. Requires a valid access token.
-    app.post('/logout', { preHandler: [authenticate] }, async (request, reply) => {
-      await service.logout(request.userId);
-      reply.clearCookie(REFRESH_COOKIE, { path: '/api/auth' });
-      return reply.status(204).send();
-    });
+    app.post(
+      '/logout',
+      { schema: { tags: ['Auth'] }, preHandler: [authenticate] },
+      async (request, reply) => {
+        await service.logout(request.userId);
+        reply.clearCookie(REFRESH_COOKIE, { path: '/api/auth' });
+        return reply.status(204).send();
+      }
+    );
 
     // ─── GET /auth/me ────────────────────────────────────────────────────────
     // Returns the authenticated user's profile. Requires a valid access token.
-    app.get('/me', { preHandler: [authenticate] }, async (request, reply) => {
-      const user = await service.me(request.userId);
-      return reply.send({ data: user });
-    });
+    app.get(
+      '/me',
+      { schema: { tags: ['Auth'] }, preHandler: [authenticate] },
+      async (request, reply) => {
+        const user = await service.me(request.userId);
+        return reply.send({ data: user });
+      }
+    );
 
     // ─── PUT /auth/password ──────────────────────────────────────────────────
     // Changes the authenticated user's password. Requires a valid access token from a
     // registered account — guests have no password to change.
     app.put<{ Body: { currentPassword: string; newPassword: string } }>(
       '/password',
-      { schema: changePasswordSchema, preHandler: [authenticate, requireRegisteredUser] },
+      {
+        schema: { ...changePasswordSchema, tags: ['Auth'] },
+        preHandler: [authenticate, requireRegisteredUser],
+      },
       async (request, reply) => {
         const { currentPassword, newPassword } = request.body;
         await service.changePassword(request.userId, currentPassword, newPassword);
@@ -97,7 +108,10 @@ export function authRoutes(service: AuthService) {
     // IP to mitigate token-minting abuse since no account is created.
     app.post(
       '/guest',
-      { config: { rateLimit: { max: 10, timeWindow: '15 minutes' } }, schema: guestSessionSchema },
+      {
+        config: { rateLimit: { max: 10, timeWindow: '15 minutes' } },
+        schema: { ...guestSessionSchema, tags: ['Auth'] },
+      },
       async (_request, reply) => {
         const { accessToken } = await service.createGuestSession();
         return reply.status(201).send({ data: { accessToken } });

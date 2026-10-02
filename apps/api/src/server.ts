@@ -3,6 +3,8 @@ import './types/index.js';
 import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
 import websocket from '@fastify/websocket';
 import { ApiKeyRepository, createDb, FileRepository, JobRepository, UserRepository } from '@fpp/db';
 import Fastify from 'fastify';
@@ -25,7 +27,7 @@ import { tooManyRequests } from './utils/errors.js';
 import { startRedisSubscriber } from './ws/redisSubscriber.js';
 import { WsManager } from './ws/WsManager.js';
 
-export function buildApp() {
+export async function buildApp() {
   const app = Fastify({
     logger: {
       transport: !config.isProduction ? { target: 'pino-pretty' } : undefined,
@@ -36,19 +38,44 @@ export function buildApp() {
   });
 
   // ── Plugins ────────────────────────────────────────────────────────────────
-  app.register(cors, {
+  await app.register(cors, {
     origin: config.cors.origin,
     credentials: true,
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 
   // @fastify/cookie must be registered before any route that reads/sets cookies.
-  app.register(cookie);
-  app.register(websocket);
+  await app.register(cookie);
+  await app.register(websocket);
+  await app.register(swagger, {
+    openapi: {
+      info: {
+        title: 'File Processing Platform API',
+        version: '1.0.0',
+        description:
+          'API for file uploads, job processing, and authentication for the File Processing Platform.',
+      },
+      servers: [{ url: '/', description: 'Current host' }],
+      tags: [
+        { name: 'Auth', description: 'Authentication and token refresh' },
+        { name: 'Files', description: 'File metadata and upload APIs' },
+        { name: 'Jobs', description: 'Job status and processing APIs' },
+        { name: 'API Keys', description: 'API key management' },
+      ],
+    },
+  });
+  await app.register(swaggerUi, {
+    routePrefix: '/api/docs',
+    uiConfig: {
+      docExpansion: 'list',
+      deepLinking: false,
+    },
+    staticCSP: true,
+  });
 
   // global: false — only routes that opt in via `config: { rateLimit: {...} }` are limited.
   // Redis-backed so limits survive restarts and are shared if the API ever scales out.
-  app.register(rateLimit, {
+  await app.register(rateLimit, {
     global: false,
     redis: new Redis(config.redis.url, { maxRetriesPerRequest: null }),
     errorResponseBuilder: (_request, context) => {

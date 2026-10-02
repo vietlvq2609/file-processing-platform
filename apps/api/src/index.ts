@@ -4,7 +4,7 @@ import { ensureBucket } from './storage.js';
 
 await ensureBucket();
 
-const app = buildApp();
+const app = await buildApp();
 
 try {
   await app.listen({ port: config.server.port, host: config.server.host });
